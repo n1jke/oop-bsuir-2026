@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	ErrInvalidDistance   = errors.New("distance must not be negative")
-	ErrNilTransport      = errors.New("transport must not be nil")
-	ErrEmptyOrderContent = errors.New("order content must not be empty")
+	ErrInvalidDistance         = errors.New("distance must not be negative")
+	ErrNilTransport            = errors.New("transport must not be nil")
+	ErrEmptyOrderContent       = errors.New("order content must not be empty")
+	ErrInvalidProductBatchSize = errors.New("product batch count must be greater than zero")
 )
 
 type Order struct {
@@ -38,11 +39,14 @@ func NewOrder(dist float64, transport Transport, content []ProductBatch) (*Order
 		return nil, ErrEmptyOrderContent
 	}
 
+	contentCopy := make([]ProductBatch, len(content))
+	copy(contentCopy, content)
+
 	return &Order{
 		id:        uuid.New(),
 		dist:      dist,
 		transport: transport,
-		content:   content,
+		content:   contentCopy,
 	}, nil
 }
 
