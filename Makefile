@@ -1,45 +1,52 @@
 COVERAGE_FILE ?= coverage.out
 
-TARGET ?= app ## change to you cmd/ folder name
+TARGET_PKG ?= cmd/app
+BINARY_NAME ?= app
+WORK_DIR ?= laboratory_work-4
+override WORK_DIR := $(or $(strip $(WORK_DIR)),.)
 
-# Build 
+# Build
 .PHONY: build
 build:
-	@echo "go build  ${TARGET}"
-	@mkdir -p .bin
-	@go build -o ./bin/${TARGET} ./cmd/${TARGET}
+	@echo "go build -o $(WORK_DIR)/bin/$(BINARY_NAME) ./$(TARGET_PKG) (dir: $(WORK_DIR))"
+	@mkdir -p "$(WORK_DIR)/bin"
+	@cd "$(WORK_DIR)" && go build -o "$(abspath $(WORK_DIR)/bin/$(BINARY_NAME))" ./$(TARGET_PKG)
+
+.PHONY: run
+run: build
+	@"$(WORK_DIR)/bin/$(BINARY_NAME)"
 
 # Test
 .PHONY: test
 test:
-	@go test -coverprofile='$(COVERAGE_FILE)' ./...
-	@go tool cover -func='$(COVERAGE_FILE)' | grep ^total | tr -s '\t'
+	@cd "$(WORK_DIR)" && go test -coverprofile='$(abspath $(WORK_DIR)/$(COVERAGE_FILE))' ./...
+	@go tool cover -func='$(WORK_DIR)/$(COVERAGE_FILE)' | grep ^total | tr -s '\t'
 
 .PHONY: test_race
 test_race:
-	@go test --race -coverprofile='$(COVERAGE_FILE)' ./...
-	@go tool cover -func='$(COVERAGE_FILE)' | grep ^total | tr -s '\t'
+	@cd "$(WORK_DIR)" && go test --race -coverprofile='$(abspath $(WORK_DIR)/$(COVERAGE_FILE))' ./...
+	@go tool cover -func='$(WORK_DIR)/$(COVERAGE_FILE)' | grep ^total | tr -s '\t'
 
 .PHONY: html_test
-html_test: 
-	@go tool cover -html='$(COVERAGE_FILE)' -o coverage.html
-	@echo "Coverage report saved to coverage.html"
+html_test:
+	@go tool cover -html='$(WORK_DIR)/$(COVERAGE_FILE)' -o "$(WORK_DIR)/coverage.html"
+	@echo "Coverage report saved to $(WORK_DIR)/coverage.html"
 
 # Lint
 .PHONY: fmt
 fmt:
-	@echo "go fmt ./..."
-	@go fmt ./...
+	@echo "cd $(WORK_DIR) && go fmt ./..."
+	@cd "$(WORK_DIR)" && go fmt ./...
 
 .PHONY: lint
 lint:
-	@golangci-lint --version && echo "golangci-lint -v run --fix ./..." || echo "golangci-lint not found"
-	@golangci-lint -v run --fix ./...
+	@golangci-lint --version && echo "cd $(WORK_DIR) && golangci-lint -v run --fix ./..." || echo "golangci-lint not found"
+	@cd "$(WORK_DIR)" && golangci-lint -v run --fix ./...
 
 # Cleanup
 .PHONY: clean
-clean: 
+clean:
 	@echo "Cleaning build artifacts..."
-	@rm -rf bin/
-	@rm -f coverage.out
-	@rm -f coverage.html
+	@rm -rf "$(WORK_DIR)/bin"
+	@rm -f "$(WORK_DIR)/$(COVERAGE_FILE)"
+	@rm -f "$(WORK_DIR)/coverage.html"
