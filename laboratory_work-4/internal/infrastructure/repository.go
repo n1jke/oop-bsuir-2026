@@ -46,6 +46,7 @@ func (c CsvRepository) LoadCargoInfo() ([]domain.CargoInfo, error) {
 			c.logger.Error("invalid csv row length", "row", i, "len", len(records[i]))
 			continue
 		}
+
 		if records[i][recordType] != "cargo" {
 			continue
 		}
@@ -89,6 +90,7 @@ func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
 			c.logger.Error("invalid csv row length", "row", i, "len", len(records[i]))
 			continue
 		}
+
 		if records[i][recordType] != "transport" {
 			continue
 		}
@@ -96,6 +98,10 @@ func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
 		tName := strings.TrimSpace(records[i][name])
 
 		mode, err := parseTransportMode(records[i][transportMode])
+		if err != nil {
+			c.logger.Error("error parsing transport mode", "row", i, "error", err)
+			continue
+		}
 
 		rate, err := strconv.ParseFloat(records[i][fuelRate], 64)
 		if err != nil {
@@ -109,7 +115,7 @@ func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
 			continue
 		}
 
-		info, err := domain.NewTransportInfo(domain.TransportType(tName), domain.TransportMode(mode), rate, transportSpeed)
+		info, err := domain.NewTransportInfo(domain.TransportType(tName), mode, rate, transportSpeed)
 		if err != nil {
 			c.logger.Error("error creating transport info", "row", i, "error", err)
 			continue
@@ -127,6 +133,7 @@ func (c CsvRepository) readRecords(path string) ([][]string, error) {
 		c.logger.Error("Error while opening configuration file", "error", err)
 		return nil, err
 	}
+
 	defer func() {
 		if err := csvfile.Close(); err != nil {
 			c.logger.Error("Error while closing configuration file", "error", err)

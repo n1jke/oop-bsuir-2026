@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
 )
 
 const (
@@ -47,6 +48,7 @@ func TestCsvRepository_LoadCargoInfo(t *testing.T) {
 			want: func() []domain.CargoInfo {
 				c1, _ := domain.NewCargoInfo("Электроника", 1.5, 50)
 				c2, _ := domain.NewCargoInfo("Одежда", 0.8, 20)
+
 				return []domain.CargoInfo{*c1, *c2}
 			}(),
 			wantErr: false,
@@ -97,6 +99,7 @@ func TestCsvRepository_LoadTransportInfo(t *testing.T) {
 			want: func() []domain.TransportInfo {
 				t1, _ := domain.NewTransportInfo("Грузовик", domain.LandTransport, 15.0, 80)
 				t2, _ := domain.NewTransportInfo("Самолет", domain.AirTransport, 150.0, 850)
+
 				return []domain.TransportInfo{*t1, *t2}
 			}(),
 			wantErr: false,
