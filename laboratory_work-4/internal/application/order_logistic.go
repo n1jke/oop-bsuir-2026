@@ -21,7 +21,7 @@ type StockRepository interface {
 }
 
 type OrderRequestSource interface {
-	RequestOrder(cargo []domain.CargoInfo, transport []domain.TransportInfo) (ClientResponse, error)
+	RequestOrder(cargo []domain.CargoInfo, transport []domain.TransportInfo) (*ClientResponse, error)
 }
 
 type ClientResponse struct {

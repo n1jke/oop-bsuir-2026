@@ -1,42 +1,46 @@
-package domain
+package domain_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
 )
 
 func TestCatalogTransportFactory_Create(t *testing.T) {
-	truck, err := NewTransportInfo("truck", LandTransport, 15, 80)
+	truck, err := domain.NewTransportInfo("truck", domain.LandTransport, 15, 80)
 	require.NoError(t, err)
-	plane, err := NewTransportInfo("plane", AirTransport, 150, 850)
+	plane, err := domain.NewTransportInfo("plane", domain.AirTransport, 150, 850)
 	require.NoError(t, err)
 
-	factory := NewCatalogTransportFactory([]TransportInfo{*truck, *plane})
+	factory := domain.NewCatalogTransportFactory([]domain.TransportInfo{*truck, *plane})
 
 	tests := []struct {
 		name          string
-		transportType TransportType
-		want          Transport
+		transportType domain.TransportType
+		wantType      domain.TransportType
+		wantMode      domain.TransportMode
 		wantErr       bool
 	}{
 		{
 			name:          "land valid case",
-			transportType: TransportType("truck"),
-			want:          &transportModel{*truck},
+			transportType: domain.TransportType("truck"),
+			wantType:      truck.Name(),
+			wantMode:      truck.Mode(),
 			wantErr:       false,
 		},
 		{
 			name:          "invalid: not found",
-			transportType: TransportType("pumpalumpa"),
-			want:          nil,
+			transportType: domain.TransportType("pumpalumpa"),
 			wantErr:       true,
 		},
 		{
 			name:          "air valid case",
-			transportType: TransportType("plane"),
-			want:          &transportModel{*plane},
+			transportType: domain.TransportType("plane"),
+			wantType:      plane.Name(),
+			wantMode:      plane.Mode(),
 			wantErr:       false,
 		},
 	}
@@ -48,11 +52,12 @@ func TestCatalogTransportFactory_Create(t *testing.T) {
 
 			if tt.wantErr {
 				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
+				return
 			}
 
-			assert.Equal(t, tt.want, got)
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantType, got.Name())
+			assert.Equal(t, tt.wantMode, got.Mode())
 		})
 	}
 }
