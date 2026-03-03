@@ -3,7 +3,6 @@ module github.com/n1jke/oop-bsuir-2025/laboratory_work-4
 go 1.25.7
 
 require (
-	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.6.0
