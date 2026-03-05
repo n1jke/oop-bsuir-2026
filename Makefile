@@ -1,5 +1,6 @@
 COVERAGE_FILE ?= coverage.out
 
+
 TARGET_PKG ?= cmd/ # insert target pkg here
 BINARY_NAME ?= app
 WORK_DIR ?= 	   # insert work dir here, if current => keep empty
