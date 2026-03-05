@@ -128,12 +128,6 @@ func (l *LogisticService) Process() (*ServiceResponse, error) {
 		return nil, err
 	}
 
-	// todo
-	// if err = validateClientResponse(resp, ...?); err != nil {
-	// 	l.logger.Error("Error validating order response", "error", err)
-	// 	return nil, err
-	// }
-
 	order, err := resp.ToOrder()
 	if err != nil {
 		l.logger.Error("Error parsing order response", "error", err)
