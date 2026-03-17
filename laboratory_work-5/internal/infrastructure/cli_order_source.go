@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/application"
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
 
 var (
@@ -18,6 +18,8 @@ var (
 	ErrInvalidDistanceInput  = errors.New("invalid distance input")
 	ErrInvalidItemsCount     = errors.New("invalid items count")
 	ErrInvalidBatchCount     = errors.New("invalid batch count")
+	ErrInvalidFileTypeInput  = errors.New("invalid file type input")
+	ErrEmptyFilePathInput    = errors.New("empty file path input")
 )
 
 type CLIOrderSource struct {
@@ -28,6 +30,30 @@ func NewCLIOrderSource(logger *slog.Logger) *CLIOrderSource {
 	return &CLIOrderSource{
 		logger: logger,
 	}
+}
+
+func (c *CLIOrderSource) RequestConfig() (string, string, error) {
+	raw, err := c.readLine("Enter config file type (csv/json/xml)")
+	if err != nil {
+		return "", "", err
+	}
+
+	fileType := strings.ToLower(strings.TrimSpace(raw))
+	if fileType != "csv" && fileType != "json" && fileType != "xml" {
+		return "", "", ErrInvalidFileTypeInput
+	}
+
+	rawPath, err := c.readLine("Enter config file path")
+	if err != nil {
+		return "", "", err
+	}
+
+	filePath := strings.TrimSpace(rawPath)
+	if filePath == "" {
+		return "", "", ErrEmptyFilePathInput
+	}
+
+	return fileType, filePath, nil
 }
 
 func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []domain.TransportInfo) (*application.ClientResponse, error) {
@@ -137,7 +163,7 @@ func printCargoCatalog(cargo []domain.CargoInfo) {
 }
 
 func (c *CLIOrderSource) readLine(msg string) (string, error) {
-	fmt.Print(msg + ":")
+	fmt.Print(msg + ": ")
 
 	line := ""
 	_, _ = fmt.Scan(&line)

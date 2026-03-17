@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
 
 func TestCatalogTransportFactory_Create(t *testing.T) {

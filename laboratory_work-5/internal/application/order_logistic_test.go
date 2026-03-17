@@ -1,6 +1,6 @@
 package application_test
 
-//go:generate go run go.uber.org/mock/mockgen@latest -source=order_logistic.go -destination=mocks/mock.go -package=mocks StockRepository,OrderRequestSource
+//go:generate go run go.uber.org/mock/mockgen@latest -source=order_logistic.go -destination=mocks/mock.go -package=mocks StockLoader,OrderRequestSource
 
 import (
 	"errors"
@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/application"
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/application/mocks"
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application/mocks"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
 
 func TestLogisticServiceProcess_TableDriven(t *testing.T) {
@@ -32,13 +32,13 @@ func TestLogisticServiceProcess_TableDriven(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		prepareMocks  func(store *mocks.MockStockRepository, client *mocks.MockOrderRequestSource)
+		prepareMocks  func(store *mocks.MockStockLoader, client *mocks.MockOrderRequestSource)
 		wantErr       bool
 		checkResponse func(t *testing.T, got *application.ServiceResponse)
 	}{
 		{
 			name: "cargo load error",
-			prepareMocks: func(store *mocks.MockStockRepository, client *mocks.MockOrderRequestSource) {
+			prepareMocks: func(store *mocks.MockStockLoader, client *mocks.MockOrderRequestSource) {
 				store.EXPECT().LoadCargoInfo().Return(nil, tempErr).Times(1)
 				store.EXPECT().LoadTransportInfo().Times(0)
 				client.EXPECT().RequestOrder(gomock.Any(), gomock.Any()).Times(0)
@@ -47,7 +47,7 @@ func TestLogisticServiceProcess_TableDriven(t *testing.T) {
 		},
 		{
 			name: "transport load error",
-			prepareMocks: func(store *mocks.MockStockRepository, client *mocks.MockOrderRequestSource) {
+			prepareMocks: func(store *mocks.MockStockLoader, client *mocks.MockOrderRequestSource) {
 				store.EXPECT().LoadCargoInfo().Return(cargoCatalog, nil).Times(1)
 				store.EXPECT().LoadTransportInfo().Return(nil, tempErr).Times(1)
 				client.EXPECT().RequestOrder(gomock.Any(), gomock.Any()).Times(0)
@@ -56,7 +56,7 @@ func TestLogisticServiceProcess_TableDriven(t *testing.T) {
 		},
 		{
 			name: "request order error",
-			prepareMocks: func(store *mocks.MockStockRepository, client *mocks.MockOrderRequestSource) {
+			prepareMocks: func(store *mocks.MockStockLoader, client *mocks.MockOrderRequestSource) {
 				store.EXPECT().LoadCargoInfo().Return(cargoCatalog, nil).Times(1)
 				store.EXPECT().LoadTransportInfo().Return(transportCatalog, nil).Times(1)
 				client.EXPECT().RequestOrder(gomock.Any(), gomock.Any()).
@@ -67,7 +67,7 @@ func TestLogisticServiceProcess_TableDriven(t *testing.T) {
 		},
 		{
 			name: "happy end",
-			prepareMocks: func(store *mocks.MockStockRepository, client *mocks.MockOrderRequestSource) {
+			prepareMocks: func(store *mocks.MockStockLoader, client *mocks.MockOrderRequestSource) {
 				store.EXPECT().LoadCargoInfo().Return(cargoCatalog, nil).Times(1)
 				store.EXPECT().LoadTransportInfo().Return(transportCatalog, nil).Times(1)
 				client.EXPECT().RequestOrder(cargoCatalog, transportCatalog).
@@ -90,13 +90,13 @@ func TestLogisticServiceProcess_TableDriven(t *testing.T) {
 			defer ctrl.Finish()
 
 			// give
-			store := mocks.NewMockStockRepository(ctrl)
+			store := mocks.NewMockStockLoader(ctrl)
 			client := mocks.NewMockOrderRequestSource(ctrl)
 			tt.prepareMocks(store, client)
 
 			srv, err := application.NewLogisticService(
 				application.WithLogger(logger),
-				application.WithStore(store),
+				application.WithStock(store),
 				application.WithClient(client),
 			)
 			require.NoError(t, err)

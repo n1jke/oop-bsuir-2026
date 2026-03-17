@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 	ErrCargoNotInStock     = errors.New("selected cargo is not present in stock")
 )
 
-type StockRepository interface {
+type StockLoader interface {
 	LoadCargoInfo() ([]domain.CargoInfo, error)
 	LoadTransportInfo() ([]domain.TransportInfo, error)
 }
@@ -41,7 +41,7 @@ func (c ClientResponse) ToOrder() (*domain.Order, error) {
 
 type LogisticService struct {
 	logger *slog.Logger
-	store  StockRepository
+	stock  StockLoader
 	client OrderRequestSource
 }
 
@@ -58,7 +58,7 @@ func NewLogisticService(opts ...Option) (*LogisticService, error) {
 		}
 	}
 
-	if srv.store == nil {
+	if srv.stock == nil {
 		return nil, ErrNilStockRepository
 	}
 
@@ -81,13 +81,13 @@ func WithLogger(logger *slog.Logger) Option {
 	}
 }
 
-func WithStore(store StockRepository) Option {
+func WithStock(stock StockLoader) Option {
 	return func(l *LogisticService) error {
-		if store == nil {
+		if stock == nil {
 			return ErrNilStockRepository
 		}
 
-		l.store = store
+		l.stock = stock
 
 		return nil
 	}
@@ -108,13 +108,13 @@ func WithClient(client OrderRequestSource) Option {
 func (l *LogisticService) Process() (*ServiceResponse, error) {
 	l.logger.Info("Processing order logistic")
 
-	cargoConfig, err := l.store.LoadCargoInfo()
+	cargoConfig, err := l.stock.LoadCargoInfo()
 	if err != nil {
 		l.logger.Error("Error loading cargo info", "error", err)
 		return nil, err
 	}
 
-	transportConfig, err := l.store.LoadTransportInfo()
+	transportConfig, err := l.stock.LoadTransportInfo()
 	if err != nil {
 		l.logger.Error("Error loading transport info", "error", err)
 		return nil, err

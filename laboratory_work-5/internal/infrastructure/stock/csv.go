@@ -1,14 +1,13 @@
-package infrastructure
+package stock
 
 import (
 	"encoding/csv"
-	"fmt"
 	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
 
 const (
@@ -21,20 +20,20 @@ const (
 	speed
 )
 
-type CsvRepository struct {
+type CsvLoader struct {
 	logger *slog.Logger
 	path   string
 }
 
-func NewCsvRepository(logger *slog.Logger, path string) *CsvRepository {
-	return &CsvRepository{
+func NewCsvLoader(logger *slog.Logger, path string) *CsvLoader {
+	return &CsvLoader{
 		logger: logger,
 		path:   path,
 	}
 }
 
-func (c CsvRepository) LoadCargoInfo() ([]domain.CargoInfo, error) {
-	records, err := c.readRecords(c.path)
+func (cl CsvLoader) LoadCargoInfo() ([]domain.CargoInfo, error) {
+	records, err := cl.readRecords(cl.path)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +42,7 @@ func (c CsvRepository) LoadCargoInfo() ([]domain.CargoInfo, error) {
 
 	for i := 1; i < len(records); i++ {
 		if len(records[i]) <= speed {
-			c.logger.Error("invalid csv row length", "row", i, "len", len(records[i]))
+			cl.logger.Error("invalid csv row length", "row", i, "len", len(records[i]))
 			continue
 		}
 
@@ -55,19 +54,19 @@ func (c CsvRepository) LoadCargoInfo() ([]domain.CargoInfo, error) {
 
 		weight, err := strconv.ParseFloat(records[i][weightPerKg], 64)
 		if err != nil {
-			c.logger.Error("error parsing cargo weight", "row", i, "error", err)
+			cl.logger.Error("error parsing cargo weight", "row", i, "error", err)
 			continue
 		}
 
 		cost, err := strconv.ParseFloat(records[i][deliveryCost], 64)
 		if err != nil {
-			c.logger.Error("error parsing cargo cost", "row", i, "error", err)
+			cl.logger.Error("error parsing cargo cost", "row", i, "error", err)
 			continue
 		}
 
 		info, err := domain.NewCargoInfo(domain.ProductName(cName), weight, cost)
 		if err != nil {
-			c.logger.Error("error creating cargo info", "row", i, "error", err)
+			cl.logger.Error("error creating cargo info", "row", i, "error", err)
 			continue
 		}
 
@@ -77,8 +76,8 @@ func (c CsvRepository) LoadCargoInfo() ([]domain.CargoInfo, error) {
 	return output, nil
 }
 
-func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
-	records, err := c.readRecords(c.path)
+func (cl CsvLoader) LoadTransportInfo() ([]domain.TransportInfo, error) {
+	records, err := cl.readRecords(cl.path)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
 
 	for i := range records {
 		if len(records[i]) <= speed {
-			c.logger.Error("invalid csv row length", "row", i, "len", len(records[i]))
+			cl.logger.Error("invalid csv row length", "row", i, "len", len(records[i]))
 			continue
 		}
 
@@ -99,25 +98,25 @@ func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
 
 		mode, err := parseTransportMode(records[i][transportMode])
 		if err != nil {
-			c.logger.Error("error parsing transport mode", "row", i, "error", err)
+			cl.logger.Error("error parsing transport mode", "row", i, "error", err)
 			continue
 		}
 
 		rate, err := strconv.ParseFloat(records[i][fuelRate], 64)
 		if err != nil {
-			c.logger.Error("error parsing transport rate", "row", i, "error", err)
+			cl.logger.Error("error parsing transport rate", "row", i, "error", err)
 			continue
 		}
 
 		transportSpeed, err := strconv.ParseFloat(records[i][speed], 64)
 		if err != nil {
-			c.logger.Error("error parsing transport speed", "row", i, "error", err)
+			cl.logger.Error("error parsing transport speed", "row", i, "error", err)
 			continue
 		}
 
 		info, err := domain.NewTransportInfo(domain.TransportType(tName), mode, rate, transportSpeed)
 		if err != nil {
-			c.logger.Error("error creating transport info", "row", i, "error", err)
+			cl.logger.Error("error creating transport info", "row", i, "error", err)
 			continue
 		}
 
@@ -127,16 +126,16 @@ func (c CsvRepository) LoadTransportInfo() ([]domain.TransportInfo, error) {
 	return output, nil
 }
 
-func (c CsvRepository) readRecords(path string) ([][]string, error) {
+func (cl CsvLoader) readRecords(path string) ([][]string, error) {
 	csvfile, err := os.Open(path)
 	if err != nil {
-		c.logger.Error("Error while opening configuration file", "error", err)
+		cl.logger.Error("Error while opening configuration file", "error", err)
 		return nil, err
 	}
 
 	defer func() {
 		if err := csvfile.Close(); err != nil {
-			c.logger.Error("Error while closing configuration file", "error", err)
+			cl.logger.Error("Error while closing configuration file", "error", err)
 		}
 	}()
 
@@ -147,22 +146,9 @@ func (c CsvRepository) readRecords(path string) ([][]string, error) {
 
 	records, err := reader.ReadAll()
 	if err != nil {
-		c.logger.Error("Error while reading configuration file", "error", err)
+		cl.logger.Error("Error while reading configuration file", "error", err)
 		return nil, err
 	}
 
 	return records, nil
-}
-
-func parseTransportMode(raw string) (domain.TransportMode, error) {
-	switch raw {
-	case "Земля", "land":
-		return domain.LandTransport, nil
-	case "Вода", "water":
-		return domain.WaterTransport, nil
-	case "Воздух", "air":
-		return domain.AirTransport, nil
-	default:
-		return "", fmt.Errorf("unknown transport mode: %q", raw)
-	}
 }

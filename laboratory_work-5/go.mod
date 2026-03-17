@@ -1,4 +1,4 @@
-module github.com/n1jke/oop-bsuir-2025/laboratory_work-4
+module github.com/n1jke/oop-bsuir-2025/laboratory_work-5
 
 go 1.25.7
 

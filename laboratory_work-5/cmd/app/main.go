@@ -5,30 +5,40 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/application"
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/infrastructure"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure/stock"
 )
-
-const logisticFile string = "laboratory_work-4/logistic.csv"
 
 func main() {
 	logger := slog.Default()
-	store := infrastructure.NewCsvRepository(logger, logisticFile)
 	client := infrastructure.NewCLIOrderSource(logger)
+
+	fileType, filePath, err := client.RequestConfig()
+	if err != nil {
+		logger.Error("failed to get config input", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	stockInfo, err := stock.NewStockLoader(logger, filePath, fileType)
+	if err != nil {
+		logger.Error("failed to create stock loader", slog.Any("err", err))
+		os.Exit(1)
+	}
 
 	service, err := application.NewLogisticService(
 		application.WithLogger(logger),
-		application.WithStore(store),
+		application.WithStock(stockInfo),
 		application.WithClient(client),
 	)
 	if err != nil {
-		logger.Error("failed to create logistic service", "error", err)
+		logger.Error("failed to create logistic service", slog.Any("err", err))
 		os.Exit(1)
 	}
 
 	resp, err := service.Process()
 	if err != nil {
-		logger.Error("failed to process order", "error", err)
+		logger.Error("failed to process order", slog.Any("err", err))
 		os.Exit(1)
 	}
 

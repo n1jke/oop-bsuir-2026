@@ -1,4 +1,4 @@
-package infrastructure_test
+package stock_test
 
 import (
 	"io"
@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/domain"
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-4/internal/infrastructure"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure/stock"
 )
 
 const (
@@ -72,7 +72,7 @@ func TestCsvRepository_LoadCargoInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			c := infrastructure.NewCsvRepository(logger, tt.path)
+			c := stock.NewCsvLoader(logger, tt.path)
 			got, err := c.LoadCargoInfo()
 
 			if tt.wantErr {
@@ -123,7 +123,7 @@ func TestCsvRepository_LoadTransportInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			c := infrastructure.NewCsvRepository(logger, tt.path)
+			c := stock.NewCsvLoader(logger, tt.path)
 			got, err := c.LoadTransportInfo()
 
 			if tt.wantErr {
