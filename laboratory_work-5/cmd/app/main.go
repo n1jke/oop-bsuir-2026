@@ -43,24 +43,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	if resp.Order != nil {
-		fmt.Printf("ID: %s\n", resp.Order.ID())
-		fmt.Printf("Total cost: %.2f\n", resp.Cost)
-		fmt.Printf("Delivery duration: %s\n", resp.Order.EstimateDuration())
+	sortFields, err := client.RequestSortFields()
+	if err != nil {
+		logger.Error("failed to get sort fields", slog.Any("err", err))
+		os.Exit(1)
 	}
 
-	fmt.Println("Available transport options:")
-
-	for i := range resp.Options {
-		opt := resp.Options[i]
-		fmt.Printf(
-			"[%d] %s | mode=%s | cost=%.2f | duration=%s\n",
-			i,
-			opt.Transport.Name(),
-			opt.Transport.Mode(),
-			opt.Cost,
-			opt.Duration,
-		)
+	if err := resp.SortFields(sortFields); err != nil {
+		logger.Error("failed to sort response options", slog.Any("err", err))
+		os.Exit(1)
 	}
 
 	exportCfg, err := client.RequestExportConfig()
@@ -75,7 +66,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := saver.Save(*resp); err != nil {
+	if err := saver.Save(resp); err != nil {
 		logger.Error("failed to save response", slog.Any("err", err))
 		os.Exit(1)
 	}

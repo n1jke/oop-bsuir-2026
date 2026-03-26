@@ -13,16 +13,17 @@ import (
 )
 
 var (
-	ErrEmptyCargoCatalog     = errors.New("cargo catalog is empty")
-	ErrEmptyTransportCatalog = errors.New("transport catalog is empty")
-	ErrInvalidMenuSelection  = errors.New("invalid menu selection")
-	ErrInvalidDistanceInput  = errors.New("invalid distance input")
-	ErrInvalidItemsCount     = errors.New("invalid items count")
-	ErrInvalidBatchCount     = errors.New("invalid batch count")
-	ErrInvalidFileTypeInput  = errors.New("invalid file type input")
-	ErrEmptyFilePathInput    = errors.New("empty file path input")
-	ErrInvalidExportFormat   = errors.New("invalid export format input")
-	ErrInvalidYesNoInput     = errors.New("invalid yes/no input")
+	ErrEmptyCargoCatalog      = errors.New("cargo catalog is empty")
+	ErrEmptyTransportCatalog  = errors.New("transport catalog is empty")
+	ErrInvalidMenuSelection   = errors.New("invalid menu selection")
+	ErrInvalidDistanceInput   = errors.New("invalid distance input")
+	ErrInvalidItemsCount      = errors.New("invalid items count")
+	ErrInvalidBatchCount      = errors.New("invalid batch count")
+	ErrInvalidFileTypeInput   = errors.New("invalid file type input")
+	ErrEmptyFilePathInput     = errors.New("empty file path input")
+	ErrInvalidExportFormat    = errors.New("invalid export format input")
+	ErrInvalidYesNoInput      = errors.New("invalid yes/no input")
+	ErrInvalidSortFieldsInput = errors.New("invalid sort fields input")
 )
 
 type CLIOrderSource struct {
@@ -36,7 +37,7 @@ func NewCLIOrderSource(logger *slog.Logger) *CLIOrderSource {
 }
 
 func (c *CLIOrderSource) RequestConfig() (string, string, error) {
-	raw, err := ReadLine("Enter config file type (csv/json/xml)")
+	raw, err := ReadLine("Enter config file type (csv/json/xml): ")
 	if err != nil {
 		return "", "", err
 	}
@@ -46,7 +47,7 @@ func (c *CLIOrderSource) RequestConfig() (string, string, error) {
 		return "", "", ErrInvalidFileTypeInput
 	}
 
-	rawPath, err := ReadLine("Enter config file path")
+	rawPath, err := ReadLine("Enter config file path: ")
 	if err != nil {
 		return "", "", err
 	}
@@ -103,6 +104,32 @@ func (c *CLIOrderSource) RequestExportConfig() (save.ExportConfig, error) {
 		Transformations: transformations,
 		OutPath:         outPath,
 	}, nil
+}
+
+func (c *CLIOrderSource) RequestSortFields() ([]string, error) {
+	raw, err := ReadLine("Sort options by fields : cost,duration,transport (comma separated): ")
+	if err != nil {
+		return nil, err
+	}
+
+	raw = strings.TrimSpace(strings.ToLower(raw))
+	if raw == "" {
+		return nil, nil
+	}
+
+	parts := strings.Split(raw, ",")
+
+	fields := make([]string, 0, len(parts))
+	for i := range parts {
+		switch parts[i] {
+		case "cost", "duration", "transport", "transportname", "transport_name":
+			fields = append(fields, parts[i])
+		default:
+			return nil, ErrInvalidSortFieldsInput
+		}
+	}
+
+	return fields, nil
 }
 
 func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []domain.TransportInfo) (*application.ClientResponse, error) {

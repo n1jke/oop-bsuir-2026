@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application"
 )
 
 type ExportConfig struct {
@@ -49,7 +51,7 @@ func NewResponseSaver(cfg ExportConfig) (*ResponseSaver, error) {
 	}, nil
 }
 
-func (rs *ResponseSaver) Save(data any) error {
+func (rs *ResponseSaver) Save(data *application.ServiceResponse) error {
 	if data == nil {
 		return ErrInvalidPayload
 	}
@@ -79,7 +81,7 @@ func (rs *ResponseSaver) Save(data any) error {
 	}
 
 	// traversal encode(T1(...Tn(data)))
-	encodeErr := rs.encoder.Encode(writer, data)
+	encodeErr := rs.encoder.Encode(writer, mapServiceResponse(data))
 	closeErr := closeWriters(closers)
 
 	if encodeErr != nil {
