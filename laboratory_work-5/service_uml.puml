@@ -1,28 +1,42 @@
-@startuml laboratory_work-4
+@startuml laboratory_work-5
 
 skinparam classAttributeIconSize 0
 
 package "application" {
-  interface StockRepository <<Port>>
-  interface OrderRequestSource <<Port>>
+  interface StockLoader <<Port>> {
+    +LoadCargoInfo() ([]domain.CargoInfo, error)
+    +LoadTransportInfo() ([]domain.TransportInfo, error)
+  }
+
+  interface OrderRequestSource <<Port>> {
+    +RequestOrder(cargo, transport) (*ClientResponse, error)
+  }
 
   class ClientResponse {
     +Transport domain.Transport
     +Dist float64
     +Content []domain.ProductBatch
-    +ToOrder() *domain.Order
+    +ToOrder() (*domain.Order, error)
+  }
+
+  class Quote {
+    +Transport domain.TransportInfo
+    +Cost float64
+    +Duration time.Duration
   }
 
   class ServiceResponse {
     +Order *domain.Order
     +Cost float64
+    +Options []Quote
+    +SortByFieldNames(fields []string) error
   }
 
   class LogisticService <<Controller>> {
     -logger *slog.Logger
-    -store StockRepository
+    -stock StockLoader
     -client OrderRequestSource
-    +Process() *ServiceResponse
+    +Process() (*ServiceResponse, error)
   }
 
   class Option <<Go Option Pattern>>
@@ -30,10 +44,8 @@ package "application" {
 
 package "domain" {
   interface Transport <<Polymorphism>> {
-    +Name() TransportType
-    +Mode() TransportMode
-    +DeliveryRate() float64
-    +Speed() float64
+    +CalculateCost(dist float64) float64
+    +CalculateDeliveryTime(dist float64) float64
   }
 
   class TransportInfo {
@@ -44,12 +56,12 @@ package "domain" {
   }
 
   interface TransportFactory <<Abstract Factory>> {
-    +Create(name TransportType) Transport
+    +Create(name TransportType) (Transport, error)
   }
 
   class CatalogTransportFactory <<Creator>> {
     -catalog []TransportInfo
-    +Create(name TransportType) Transport
+    +Create(name TransportType) (Transport, error)
   }
 
   class transportModel {
@@ -64,6 +76,7 @@ package "domain" {
   class ProductBatch {
     -count uint
     +CostForBatch() float64
+    +WeightForBatch() float64
   }
 
   class Order <<Information Expert>> {
@@ -73,61 +86,107 @@ package "domain" {
     -content []ProductBatch
     +CalculateCost() float64
     +EstimateDuration() time.Duration
+    +Transport() Transport
+    +Distance() float64
+    +Content() []ProductBatch
   }
 }
 
-package "infrastructure" {
-  class CsvRepository <<Pure Fabrication>> {
-    +LoadCargoInfo() []domain.CargoInfo
-    +LoadTransportInfo() []domain.TransportInfo
+package "infrastructure.stock" {
+  class StockLoaderFactory <<Factory Method>> {
+    +NewStockLoader(logger, path, fileType) application.StockLoader
   }
 
+  class CsvLoader <<Pure Fabrication>>
+  class JSONLoader <<Pure Fabrication>>
+  class XMLLoader <<Pure Fabrication>>
+}
+
+package "infrastructure.cli" {
   class CLIOrderSource <<Pure Fabrication>> {
-    +RequestOrder(cargo, transport)
+    +RequestConfig() (string, string, error)
+    +RequestOrder(cargo, transport) (*application.ClientResponse, error)
+    +RequestSortFields() ([]string, error)
+    +RequestExportConfig() (save.ExportConfig, error)
   }
 }
 
-LogisticService ..> StockRepository 
-LogisticService ..> OrderRequestSource 
-LogisticService ..> ClientResponse
+package "infrastructure.save" {
+  class ExportConfig {
+    +Format string
+    +Transformations []string
+    +OutPath string
+  }
+
+  interface Encoder <<Strategy>> {
+    +Encode(w io.Writer, v any) error
+  }
+
+  class JSONEncoder
+  class YAMLEncoder
+
+  interface Transformer <<Decorator>> {
+    +Wrap(dst io.Writer) (io.WriteCloser, error)
+  }
+
+  class AESCipher
+  class GzipCompress
+
+  class ResponseSaver {
+    -encoder Encoder
+    -transformers []Transformer
+    -outPath string
+    +NewResponseSaver(cfg ExportConfig) (*ResponseSaver, error)
+    +Save(data *application.ServiceResponse) error
+  }
+}
+
+LogisticService ..> StockLoader
+LogisticService ..> OrderRequestSource
 LogisticService ..> ServiceResponse
 
-CsvRepository ..|> StockRepository
-CLIOrderSource ..|> OrderRequestSource
-
 ClientResponse ..> Order : ToOrder()
-ClientResponse ..> ProductBatch
-ClientResponse ..> Transport
+ServiceResponse *-- Quote
 
 Order *-- ProductBatch
 Order --> Transport
 ProductBatch *-- CargoInfo
 
 CatalogTransportFactory ..|> TransportFactory
-CatalogTransportFactory ..> TransportInfo 
-CatalogTransportFactory ..> transportModel : <<create>>\n<<Factory Method>> newTransportFromInfo(...)
+CatalogTransportFactory ..> TransportInfo
+CatalogTransportFactory ..> transportModel : <<create>>
 transportModel ..|> Transport
 transportModel *-- TransportInfo
 
+CsvLoader ..|> StockLoader
+JSONLoader ..|> StockLoader
+XMLLoader ..|> StockLoader
+StockLoaderFactory ..> StockLoader : <<create>>
+
+CLIOrderSource ..|> OrderRequestSource
+CLIOrderSource ..> ExportConfig
+
+ResponseSaver ..> ExportConfig
+ResponseSaver ..> Encoder
+ResponseSaver ..> Transformer
+JSONEncoder ..|> Encoder
+YAMLEncoder ..|> Encoder
+AESCipher ..|> Transformer
+GzipCompress ..|> Transformer
+
 note top of LogisticService
-Controller/DIP through interfaces (ports)
-Indirection: interfaces for testability and flexibility
+Controller + DIP via ports.
+If no transport selected (-1), service builds options for all transports.
 end note
 
-note left of Order
-Information Expert:
-calculate cost and delivery time
+note left of ServiceResponse
+Behavioral pattern: Strategy-like comparator composition.
 end note
 
-note top of CsvRepository
-Pure Fabrication:
-IO/CSV infrastructure entity
-end note
-
-note bottom of Option
-Option Pattern:
-WithLogger / WithStore / WithClient
-in NewLogisticService(...)
+note top of ResponseSaver
+Streaming pipeline:
+encoder -> wrapped transformers -> file.
+Decorator composition through Wrap(writer).
 end note
 
 @enduml
