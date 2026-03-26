@@ -14,6 +14,8 @@ type Transport interface {
 	Mode() TransportMode
 	DeliveryRate() float64
 	Speed() float64
+	CalculateCost(dist float64) float64
+	CalculateDeliveryTime(dist float64) float64
 }
 
 type TransportInfo struct {
@@ -73,4 +75,12 @@ func (t *TransportInfo) DeliveryRate() float64 {
 
 func (t *TransportInfo) Speed() float64 {
 	return t.speed
+}
+
+func (t *TransportInfo) CalculateCost(dist float64) float64 {
+	return t.deliveryRate * dist
+}
+
+func (t *TransportInfo) CalculateDeliveryTime(dist float64) float64 {
+	return dist / t.speed
 }

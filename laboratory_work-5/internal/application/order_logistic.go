@@ -3,6 +3,7 @@ package application
 import (
 	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
@@ -14,30 +15,6 @@ var (
 	ErrTransportNotInStock = errors.New("selected transport is not present in stock")
 	ErrCargoNotInStock     = errors.New("selected cargo is not present in stock")
 )
-
-type StockLoader interface {
-	LoadCargoInfo() ([]domain.CargoInfo, error)
-	LoadTransportInfo() ([]domain.TransportInfo, error)
-}
-
-type OrderRequestSource interface {
-	RequestOrder(cargo []domain.CargoInfo, transport []domain.TransportInfo) (*ClientResponse, error)
-}
-
-type ClientResponse struct {
-	Transport domain.Transport
-	Dist      float64
-	Content   []domain.ProductBatch
-}
-
-type ServiceResponse struct {
-	Order *domain.Order
-	Cost  float64
-}
-
-func (c ClientResponse) ToOrder() (*domain.Order, error) {
-	return domain.NewOrder(c.Dist, c.Transport, c.Content)
-}
 
 type LogisticService struct {
 	logger *slog.Logger
@@ -139,5 +116,35 @@ func (l *LogisticService) Process() (*ServiceResponse, error) {
 		Cost:  order.CalculateCost(),
 	}
 
+	if order.Transport() == nil {
+		options, err := buildOptions(order, transportConfig)
+		if err != nil {
+			l.logger.Error("Error building transport options", slog.Any("error", err))
+			return nil, err
+		}
+
+		response.Options = options
+	}
+
 	return response, nil
+}
+
+func buildOptions(order *domain.Order, transportCatalog []domain.TransportInfo) ([]Quote, error) {
+	factory := domain.NewCatalogTransportFactory(transportCatalog)
+	output := make([]Quote, 0, len(transportCatalog))
+
+	for i := range transportCatalog {
+		transport, err := factory.Create(transportCatalog[i].Name())
+		if err != nil {
+			return nil, err
+		}
+
+		output = append(output, Quote{
+			Transport: transportCatalog[i],
+			Cost:      transport.CalculateCost(order.Distance()),
+			Duration:  time.Duration(transport.CalculateDeliveryTime(order.Distance()) * float64(time.Hour)),
+		})
+	}
+
+	return output, nil
 }

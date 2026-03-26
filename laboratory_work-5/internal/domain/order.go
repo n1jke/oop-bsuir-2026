@@ -8,10 +8,8 @@ import (
 )
 
 var (
-	ErrInvalidDistance         = errors.New("distance must not be negative")
-	ErrNilTransport            = errors.New("transport must not be nil")
-	ErrEmptyOrderContent       = errors.New("order content must not be empty")
-	ErrInvalidProductBatchSize = errors.New("product batch count must be greater than zero")
+	ErrInvalidDistance   = errors.New("distance must not be negative")
+	ErrEmptyOrderContent = errors.New("order content must not be empty")
 )
 
 type Order struct {
@@ -31,9 +29,10 @@ func NewOrder(dist float64, transport Transport, content []ProductBatch) (*Order
 		return nil, ErrInvalidDistance
 	}
 
-	if transport == nil {
-		return nil, ErrNilTransport
-	}
+	// todo: maybe temp solution(case: client dont choose a transport & we create list of possible)
+	// if transport == nil {
+	// 	return nil, ErrNilTransport
+	// }
 
 	if len(content) == 0 {
 		return nil, ErrEmptyOrderContent
@@ -54,6 +53,14 @@ func (o *Order) ID() uuid.UUID {
 	return o.id
 }
 
+func (o *Order) Transport() Transport {
+	return o.transport
+}
+
+func (o *Order) Distance() float64 {
+	return o.dist
+}
+
 func (o *Order) CalculateCost() float64 {
 	total := 0.0
 
@@ -61,20 +68,19 @@ func (o *Order) CalculateCost() float64 {
 		total += o.content[i].CostForBatch()
 	}
 
-	total += o.transport.DeliveryRate() * o.dist
+	if o.transport != nil {
+		total += o.transport.CalculateCost(o.dist)
+	}
 
 	return total
 }
 
 func (o *Order) EstimateDuration() time.Duration {
-	speed := o.transport.Speed()
-	if speed <= 0 {
-		return 0
+	if o.transport == nil {
+		return time.Second * 0
 	}
 
-	hours := o.dist / speed
-
-	return time.Duration(hours * float64(time.Hour))
+	return time.Duration(o.transport.CalculateDeliveryTime(o.dist) * float64(time.Hour))
 }
 
 func NewProductBatch(item CargoInfo, count uint) *ProductBatch {
