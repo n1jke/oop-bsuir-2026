@@ -9,6 +9,7 @@ import (
 
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application"
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure/save"
 )
 
 var (
@@ -20,6 +21,8 @@ var (
 	ErrInvalidBatchCount     = errors.New("invalid batch count")
 	ErrInvalidFileTypeInput  = errors.New("invalid file type input")
 	ErrEmptyFilePathInput    = errors.New("empty file path input")
+	ErrInvalidExportFormat   = errors.New("invalid export format input")
+	ErrInvalidYesNoInput     = errors.New("invalid yes/no input")
 )
 
 type CLIOrderSource struct {
@@ -56,15 +59,53 @@ func (c *CLIOrderSource) RequestConfig() (string, string, error) {
 	return fileType, filePath, nil
 }
 
+func (c *CLIOrderSource) RequestExportConfig() (save.ExportConfig, error) {
+	rawFormat, err := ReadLine("Enter export format (json/yaml): ")
+	if err != nil {
+		return save.ExportConfig{}, err
+	}
+
+	format := strings.ToLower(strings.TrimSpace(rawFormat))
+	if format != "json" && format != "yaml" {
+		return save.ExportConfig{}, ErrInvalidExportFormat
+	}
+
+	useEncryption, err := readYesNo("Enable encryption (y/n): ")
+	if err != nil {
+		return save.ExportConfig{}, err
+	}
+
+	useCompression, err := readYesNo("Enable compression (y/n): ")
+	if err != nil {
+		return save.ExportConfig{}, err
+	}
+
+	transformations := make([]string, 0, 2)
+	if useEncryption {
+		transformations = append(transformations, "encrypt")
+	}
+
+	if useCompression {
+		transformations = append(transformations, "compress")
+	}
+
+	outPath := "response." + format
+	if useEncryption {
+		outPath += ".enc"
+	}
+
+	if useCompression {
+		outPath += ".gz"
+	}
+
+	return save.ExportConfig{
+		Format:          format,
+		Transformations: transformations,
+		OutPath:         outPath,
+	}, nil
+}
+
 func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []domain.TransportInfo) (*application.ClientResponse, error) {
-	if len(cargo) == 0 {
-		return nil, ErrEmptyCargoCatalog
-	}
-
-	if len(transport) == 0 {
-		return nil, ErrEmptyTransportCatalog
-	}
-
 	printTransportCatalog(transport)
 
 	transportIdx, err := ReadInt("Select transport (or -1 for all): ")
@@ -200,4 +241,20 @@ func ReadFloat(msg string) (float64, error) {
 	}
 
 	return value, nil
+}
+
+func readYesNo(msg string) (bool, error) {
+	raw, err := ReadLine(msg)
+	if err != nil {
+		return false, err
+	}
+
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "y", "yes":
+		return true, nil
+	case "n", "no":
+		return false, nil
+	default:
+		return false, ErrInvalidYesNoInput
+	}
 }

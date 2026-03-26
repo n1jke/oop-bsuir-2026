@@ -7,6 +7,7 @@ import (
 
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/application"
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure"
+	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure/save"
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/infrastructure/stock"
 )
 
@@ -61,4 +62,23 @@ func main() {
 			opt.Duration,
 		)
 	}
+
+	exportCfg, err := client.RequestExportConfig()
+	if err != nil {
+		logger.Error("failed to get export config", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	saver, err := save.NewResponseSaver(exportCfg)
+	if err != nil {
+		logger.Error("failed to create response saver", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	if err := saver.Save(*resp); err != nil {
+		logger.Error("failed to save response", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	fmt.Printf("Response saved to: %s\n", exportCfg.OutPath)
 }
