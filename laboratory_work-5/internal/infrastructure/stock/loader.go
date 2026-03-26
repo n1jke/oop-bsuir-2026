@@ -9,7 +9,7 @@ import (
 	"github.com/n1jke/oop-bsuir-2025/laboratory_work-5/internal/domain"
 )
 
-var ErrInvalidFileType error = errors.New("provided invalid file type for stock loader")
+var ErrInvalidFileType = errors.New("provided invalid file type for stock loader")
 
 func NewStockLoader(logger *slog.Logger, path, loaderType string) (application.StockLoader, error) {
 	switch loaderType {

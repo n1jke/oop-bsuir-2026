@@ -33,7 +33,7 @@ func NewCLIOrderSource(logger *slog.Logger) *CLIOrderSource {
 }
 
 func (c *CLIOrderSource) RequestConfig() (string, string, error) {
-	raw, err := c.readLine("Enter config file type (csv/json/xml)")
+	raw, err := ReadLine("Enter config file type (csv/json/xml)")
 	if err != nil {
 		return "", "", err
 	}
@@ -43,7 +43,7 @@ func (c *CLIOrderSource) RequestConfig() (string, string, error) {
 		return "", "", ErrInvalidFileTypeInput
 	}
 
-	rawPath, err := c.readLine("Enter config file path")
+	rawPath, err := ReadLine("Enter config file path")
 	if err != nil {
 		return "", "", err
 	}
@@ -67,23 +67,26 @@ func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []doma
 
 	printTransportCatalog(transport)
 
-	transportIdx, err := c.readInt("Select transport: ")
+	transportIdx, err := ReadInt("Select transport (or -1 for all): ")
 	if err != nil {
 		return nil, err
 	}
 
-	if transportIdx < 0 || transportIdx >= len(transport) {
+	if transportIdx < -1 || transportIdx >= len(transport) {
 		return nil, ErrInvalidMenuSelection
 	}
 
 	factory := domain.NewCatalogTransportFactory(transport)
 
-	selectedTransport, err := factory.Create(transport[transportIdx].Name())
-	if err != nil {
-		return nil, err
+	var selectedTransport domain.Transport
+	if transportIdx != -1 {
+		selectedTransport, err = factory.Create(transport[transportIdx].Name())
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	distance, err := c.readFloat("Input distance: ")
+	distance, err := ReadFloat("Input distance: ")
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +97,7 @@ func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []doma
 
 	printCargoCatalog(cargo)
 
-	itemsCount, err := c.readInt("Input count of items: ")
+	itemsCount, err := ReadInt("Input count of items: ")
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +108,7 @@ func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []doma
 
 	content := make([]domain.ProductBatch, 0, itemsCount)
 	for i := range itemsCount {
-		cargoIdx, err := c.readInt(fmt.Sprintf("Pos %d, select item: ", i+1))
+		cargoIdx, err := ReadInt(fmt.Sprintf("Pos %d, select item: ", i+1))
 		if err != nil {
 			return nil, err
 		}
@@ -114,7 +117,7 @@ func (c *CLIOrderSource) RequestOrder(cargo []domain.CargoInfo, transport []doma
 			return nil, ErrInvalidMenuSelection
 		}
 
-		count, err := c.readInt(fmt.Sprintf("Pos %d, select count: ", i+1))
+		count, err := ReadInt(fmt.Sprintf("Pos %d, select count: ", i+1))
 		if err != nil {
 			return nil, err
 		}
@@ -162,8 +165,8 @@ func printCargoCatalog(cargo []domain.CargoInfo) {
 	}
 }
 
-func (c *CLIOrderSource) readLine(msg string) (string, error) {
-	fmt.Print(msg + ": ")
+func ReadLine(msg string) (string, error) {
+	fmt.Print(msg)
 
 	line := ""
 	_, _ = fmt.Scan(&line)
@@ -171,8 +174,8 @@ func (c *CLIOrderSource) readLine(msg string) (string, error) {
 	return strings.TrimSpace(line), nil
 }
 
-func (c *CLIOrderSource) readInt(msg string) (int, error) {
-	raw, err := c.readLine(msg)
+func ReadInt(msg string) (int, error) {
+	raw, err := ReadLine(msg)
 	if err != nil {
 		return 0, err
 	}
@@ -185,8 +188,8 @@ func (c *CLIOrderSource) readInt(msg string) (int, error) {
 	return value, nil
 }
 
-func (c *CLIOrderSource) readFloat(msg string) (float64, error) {
-	raw, err := c.readLine(msg)
+func ReadFloat(msg string) (float64, error) {
+	raw, err := ReadLine(msg)
 	if err != nil {
 		return 0, err
 	}

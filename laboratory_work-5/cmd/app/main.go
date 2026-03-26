@@ -42,7 +42,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("ID: %s\n", resp.Order.ID())
-	fmt.Printf("Total cost: %.2f\n", resp.Cost)
-	fmt.Printf("Delivery duration: %s\n", resp.Order.EstimateDuration())
+	if resp.Order != nil {
+		fmt.Printf("ID: %s\n", resp.Order.ID())
+		fmt.Printf("Total cost: %.2f\n", resp.Cost)
+		fmt.Printf("Delivery duration: %s\n", resp.Order.EstimateDuration())
+	}
+
+	fmt.Println("Available transport options:")
+
+	for i := range resp.Options {
+		opt := resp.Options[i]
+		fmt.Printf(
+			"[%d] %s | mode=%s | cost=%.2f | duration=%s\n",
+			i,
+			opt.Transport.Name(),
+			opt.Transport.Mode(),
+			opt.Cost,
+			opt.Duration,
+		)
+	}
 }
