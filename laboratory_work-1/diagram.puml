@@ -1,0 +1,142 @@
+@startuml domain-model
+
+namespace domain {
+
+class Bank {
+  -id: uuid
+  -name: string
+  -license: string
+  +ID(): uuid 
+  +Name(): string
+  +License(): string
+}
+
+class Branch {
+  -id: uuid
+  -bankID: uuid
+  -address: string
+  -opened: bool
+  +ID(): uuid
+  +BankID(): uuid
+  +Address(): string
+  +Open()
+  +Close()
+  +IsOpened(): bool
+}
+
+class Client {
+  -id: uuid
+  -passport: string
+  -fullName: string
+  -active: bool
+  +ID(): uuid
+  +FullName(): string
+  +Activate()
+  +Deactivate()
+  +IsActive(): bool
+}
+
+class Account {
+  -id: uuid
+  -number: string
+  -clientID: uuid
+  -currency: string
+  -balance: int
+  -status: string
+  +ID(): uuid
+  +Number(): string
+  +Balance(): int
+  +Deposit(amount: int)
+  +Withdraw(amount: int): bool
+  +Block()
+  +IsActive(): bool
+}
+
+class Transaction {
+  -id: uuid
+  -fromAccountID: uuid
+  -toAccountID: uuid
+  -amount: int
+  -currency: string
+  -status: string
+  +ID(): uuid
+  +Amount(): int
+  +Currency(): string
+  +Complete()
+  +Fail()
+  +IsCompleted(): bool
+}
+
+class Card {
+  -id: uuid
+  -number: string
+  -accountID: uuid
+  -active: bool
+  +ID(): uuid
+  +Number(): string
+  +Activate()
+  +Block()
+  +IsActive(): bool
+}
+
+class Employee {
+  -id: uuid
+  -branchID: uuid
+  -position: string
+  -employed: bool
+  +ID(): uuid
+  +Hire()
+  +Fire()
+  +IsEmployed(): bool
+}
+
+class Loan {
+  -id: uuid
+  -clientID: uuid
+  -amount: int
+  -approved: bool
+  +ID(): uuid
+  +Approve()
+  +Reject()
+  +IsApproved(): bool
+}
+
+class ATM {
+  -id: uuid
+  -branchID: uuid
+  -cash: int
+  +ID(): uuid
+  +BranchID(): uuid
+  +Withdraw(amount: int): bool
+  +Deposit(amount: int)
+}
+
+class Event {
+  -id: uuid
+  -aggregateID: uuid
+  -type: string
+  -occurredAt: datetime
+  +ID(): uuid
+  +AggregateID(): uuid
+  +Type(): string
+  +OccurredAt(): datetime
+}
+
+}
+
+domain.Bank "1" -- "1..*" domain.Branch
+domain.Bank "1" -- "0..*" domain.Client
+
+domain.Branch "1" -- "0..*" domain.Employee
+domain.Branch "1" -- "0..*" domain.ATM
+
+domain.Client "1" -- "1..*" domain.Account
+domain.Client "1" -- "0..*" domain.Loan
+
+domain.Account "1" -- "0..*" domain.Card
+domain.Account "1" -- "0..*" domain.Transaction 
+
+domain.Event "0..*" -- "1" domain.Account
+domain.Event "0..*" -- "0..1" domain.Transaction
+
+@enduml
