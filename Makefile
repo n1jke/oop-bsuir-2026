@@ -1,9 +1,8 @@
 COVERAGE_FILE ?= coverage.out
 
-
-TARGET_PKG ?= cmd/ # insert target pkg here
+TARGET_PKG ?= cmd/app
 BINARY_NAME ?= app
-WORK_DIR ?= 	   # insert work dir here, if current => keep empty
+WORK_DIR ?= laboratory_work-5
 override WORK_DIR := $(or $(strip $(WORK_DIR)),.)
 
 # Build
@@ -15,7 +14,7 @@ build:
 
 .PHONY: run
 run: build
-	@"$(WORK_DIR)/bin/$(BINARY_NAME)"
+	@cd "$(WORK_DIR)" && "./bin/$(BINARY_NAME)"
 
 # Test
 .PHONY: test
