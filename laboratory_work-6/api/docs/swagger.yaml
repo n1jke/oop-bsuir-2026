@@ -1,0 +1,63 @@
+basePath: /api/v1
+definitions:
+  models_weather.CurrentWeather:
+    properties:
+      temperature:
+        type: number
+    type: object
+  shared_responses.StatusResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  shared_responses.SuccessResponse-models_weather_CurrentWeather:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models_weather.CurrentWeather'
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Wheather Example API
+  version: "1.0"
+paths:
+  /weather:
+    get:
+      description: Returns current weather for given coordinates
+      parameters:
+      - default: "18.300231990440125"
+        description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: string
+      - default: "-64.8251590359234"
+        description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_CurrentWeather'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+      summary: Get Current Weather
+      tags:
+      - weather
+swagger: "2.0"
