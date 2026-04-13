@@ -2,14 +2,23 @@ package clients
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
+
+var ErrInvalidParam = errors.New("invalid param")
 
 type openWeatherResponse struct {
 	Main struct {
 		Temp float64 `json:"temp"`
 	} `json:"main"`
+}
+
+//go:generate mockgen -source=openweather.go -destination=mock/mock.go -package=mock
+type WebClient interface {
+	Do(req *http.Request) (*http.Response, error)
+	Get(url string) (resp *http.Response, err error)
 }
 
 type OpenWeatherClient struct {
@@ -18,12 +27,24 @@ type OpenWeatherClient struct {
 	client  WebClient
 }
 
-func NewOpenWeatherClient(apiKey, baseURL string, client WebClient) *OpenWeatherClient {
+func NewOpenWeatherClient(apiKey, baseURL string, client WebClient) (*OpenWeatherClient, error) {
+	if apiKey == "" {
+		return nil, fmt.Errorf("%w: apiKey is required", ErrInvalidParam)
+	}
+
+	if baseURL == "" {
+		return nil, fmt.Errorf("%w: baseURL is required", ErrInvalidParam)
+	}
+
+	if client == nil {
+		return nil, fmt.Errorf("%w: client is required", ErrInvalidParam)
+	}
+
 	return &OpenWeatherClient{
 		apiKey:  apiKey,
 		baseURL: baseURL,
 		client:  client,
-	}
+	}, nil
 }
 
 // Implementation of WeatherDataClient.

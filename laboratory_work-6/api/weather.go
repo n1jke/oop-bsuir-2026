@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,10 +16,15 @@ type WeatherHandler struct {
 	Controller controllers.CurrentWeatherController[*clients.OpenWeatherClient]
 }
 
-func NewCurrentWeatherHandler(key, url string) *WeatherHandler {
-	return &WeatherHandler{
-		Controller: *controllers.NewCurrentWeatherController(clients.NewOpenWeatherClient(key, url, http.DefaultClient)),
+func NewCurrentWeatherHandler(key, url string) (*WeatherHandler, error) {
+	client, err := clients.NewOpenWeatherClient(key, url, http.DefaultClient)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create weather client: %w", err)
 	}
+
+	return &WeatherHandler{
+		Controller: *controllers.NewCurrentWeatherController(client),
+	}, nil
 }
 
 func (h *WeatherHandler) GetWeather(c *gin.Context, params GetWeatherParams) {

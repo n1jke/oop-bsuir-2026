@@ -7,6 +7,8 @@ require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/joho/godotenv v1.5.1
 	github.com/oapi-codegen/runtime v1.4.0
+	github.com/stretchr/testify v1.11.1
+	go.uber.org/mock v0.6.0
 )
 
 require (
@@ -43,4 +45,5 @@ require (
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

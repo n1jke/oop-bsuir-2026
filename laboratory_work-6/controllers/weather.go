@@ -1,15 +1,19 @@
 package controllers
 
 import (
-	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/clients"
 	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/models/weather"
 )
 
-type CurrentWeatherController[T clients.WeatherDataClient] struct {
+//go:generate mockgen -source=weather.go -destination=mock/mock.go -package=mock
+type WeatherDataClient interface {
+	LocationCurrentTemperature(lat, lon float64) (temperature float64, err error)
+}
+
+type CurrentWeatherController[T WeatherDataClient] struct {
 	Client T
 }
 
-func NewCurrentWeatherController[T clients.WeatherDataClient](client T) *CurrentWeatherController[T] {
+func NewCurrentWeatherController[T WeatherDataClient](client T) *CurrentWeatherController[T] {
 	return &CurrentWeatherController[T]{
 		Client: client,
 	}

@@ -16,7 +16,10 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	currentWeatherHandler := api.NewCurrentWeatherHandler(cfg.OpenWeatherKey, cfg.OpenWeatherURL)
+	currentWeatherHandler, err := api.NewCurrentWeatherHandler(cfg.OpenWeatherKey, cfg.OpenWeatherURL)
+	if err != nil {
+		log.Fatalf("Error creating weather handler: %v", err)
+	}
 
 	r := gin.Default()
 	api.RegisterHandlersWithOptions(r, currentWeatherHandler, api.GinServerOptions{
