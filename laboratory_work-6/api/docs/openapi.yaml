@@ -1,3 +1,4 @@
+openapi: 3.0.0
 basePath: /api/v1
 definitions:
   models_weather.CurrentWeather:
@@ -30,18 +31,22 @@ paths:
     get:
       description: Returns current weather for given coordinates
       parameters:
-      - default: "18.300231990440125"
+      - default: 18.300231990440125
         description: Latitude
         in: query
         name: lat
         required: true
-        type: string
-      - default: "-64.8251590359234"
+        schema:
+          type: number
+          format: double
+      - default: -64.8251590359234
         description: Longitude
         in: query
         name: lon
         required: true
-        type: string
+        schema: 
+          type: number
+          format: double
       produces:
       - application/json
       responses:
@@ -60,4 +65,3 @@ paths:
       summary: Get Current Weather
       tags:
       - weather
-swagger: "2.0"

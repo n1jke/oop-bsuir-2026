@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-6/clients"
-	"github.com/n1jke/oop-bsuir-2025/laboratory_work-6/models/weather"
-
-	"github.com/shopspring/decimal"
+	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/clients"
+	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/models/weather"
 )
 
 type CurrentWeatherController[T clients.WeatherDataClient] struct {
@@ -17,7 +15,7 @@ func NewCurrentWeatherController[T clients.WeatherDataClient](client T) *Current
 	}
 }
 
-func (c *CurrentWeatherController[T]) GetCurrentWeather(lat decimal.Decimal, lon decimal.Decimal) (weather.CurrentWeather, error) {
+func (c *CurrentWeatherController[T]) GetWeather(lat, lon float64) (weather.CurrentWeather, error) {
 	temperature, err := c.Client.LocationCurrentTemperature(lat, lon)
 	if err != nil {
 		return weather.CurrentWeather{}, err

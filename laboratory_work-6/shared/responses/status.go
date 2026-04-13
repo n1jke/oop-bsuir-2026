@@ -1,6 +1,6 @@
 package responses
 
 type StatusResponse struct {
-	Code    uint16 `json:"code"`
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
