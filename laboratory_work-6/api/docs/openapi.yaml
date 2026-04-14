@@ -1,52 +1,27 @@
 openapi: 3.0.0
 basePath: /api/v1
-definitions:
-  models_weather.CurrentWeather:
-    properties:
-      temperature:
-        type: number
-    type: object
-  shared_responses.StatusResponse:
-    properties:
-      code:
-        type: integer
-      message:
-        type: string
-    type: object
-  shared_responses.SuccessResponse-models_weather_CurrentWeather:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/models_weather.CurrentWeather'
-      message:
-        type: string
-    type: object
+
 info:
   contact: {}
   title: Wheather Example API
   version: "1.0"
+
 paths:
-  /weather:
+  /weather/coordinate:
     get:
-      description: Returns current weather for given coordinates
+      description: Get Current Weather for multiple coordinates.
       parameters:
-      - default: 18.300231990440125
-        description: Latitude
+      - name: coord
         in: query
-        name: lat
+        description: List of coordinates in format 'lat,lon'.
         required: true
+        explode: true
         schema:
-          type: number
-          format: double
-      - default: -64.8251590359234
-        description: Longitude
-        in: query
-        name: lon
-        required: true
-        schema: 
-          type: number
-          format: double
+          type: array
+          items:
+            type: string
+        example:
+          - "53.9,27.56"
       produces:
       - application/json
       responses:
@@ -65,3 +40,152 @@ paths:
       summary: Get Current Weather
       tags:
       - weather
+
+  /weather/city:
+    get:
+      description: Returns current weather for given city
+      parameters:
+      - name: city
+        in: query
+        description: City name
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - Минск
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_CurrentWeather'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+      summary: Get Current Weather
+      tags:
+      - weather
+
+  /forecast/coordinate:
+    get:
+      description: Get Forecast for multiple coordinates.
+      parameters:
+      - name: coord
+        in: query
+        description: List of coordinates in format 'lat,lon'.
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - "53.9,27.56"
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_Forecast'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+      summary: Get Forecast
+      tags:
+      - forecast
+
+  /forecast/city:
+    get:
+      description: Returns forecast for given city
+      parameters:
+      - name: city
+        in: query
+        description: City name
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - Минск
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_Forecast'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared_responses.StatusResponse'
+      summary: Get Forecast
+      tags:
+      - forecast
+
+definitions:
+  models_weather.CurrentWeather:
+    properties:
+      temperature:
+        type: number
+    type: object
+  models_weather.ForecastPoint:
+    properties:
+      time:
+        type: integer
+        format: int64
+      temperature:
+        type: number
+    type: object
+  models_weather.Forecast:
+    properties:
+      forecast:
+        type: array
+        items:
+          $ref: '#/definitions/models_weather.ForecastPoint'
+    type: object
+  shared_responses.StatusResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  shared_responses.SuccessResponse-models_weather_CurrentWeather:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models_weather.CurrentWeather'
+      message:
+        type: string
+    type: object
+  shared_responses.SuccessResponse-models_weather_Forecast:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models_weather.Forecast'
+      message:
+        type: string
+    type: object

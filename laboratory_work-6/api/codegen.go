@@ -11,20 +11,44 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// GetWeatherParams defines parameters for GetWeather.
-type GetWeatherParams struct {
-	// Lat Latitude
-	Lat float64 `form:"lat" json:"lat"`
+// GetForecastCityParams defines parameters for GetForecastCity.
+type GetForecastCityParams struct {
+	// City City name
+	City []string `form:"city" json:"city"`
+}
 
-	// Lon Longitude
-	Lon float64 `form:"lon" json:"lon"`
+// GetForecastCoordinateParams defines parameters for GetForecastCoordinate.
+type GetForecastCoordinateParams struct {
+	// Coord List of coordinates in format 'lat,lon'.
+	Coord []string `form:"coord" json:"coord"`
+}
+
+// GetWeatherCityParams defines parameters for GetWeatherCity.
+type GetWeatherCityParams struct {
+	// City City name
+	City []string `form:"city" json:"city"`
+}
+
+// GetWeatherCoordinateParams defines parameters for GetWeatherCoordinate.
+type GetWeatherCoordinateParams struct {
+	// Coord List of coordinates in format 'lat,lon'.
+	Coord []string `form:"coord" json:"coord"`
 }
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get Forecast
+	// (GET /forecast/city)
+	GetForecastCity(c *gin.Context, params GetForecastCityParams)
+	// Get Forecast
+	// (GET /forecast/coordinate)
+	GetForecastCoordinate(c *gin.Context, params GetForecastCoordinateParams)
 	// Get Current Weather
-	// (GET /weather)
-	GetWeather(c *gin.Context, params GetWeatherParams)
+	// (GET /weather/city)
+	GetWeatherCity(c *gin.Context, params GetWeatherCityParams)
+	// Get Current Weather
+	// (GET /weather/coordinate)
+	GetWeatherCoordinate(c *gin.Context, params GetWeatherCoordinateParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -36,41 +60,26 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(c *gin.Context)
 
-// GetWeather operation middleware
-func (siw *ServerInterfaceWrapper) GetWeather(c *gin.Context) {
+// GetForecastCity operation middleware
+func (siw *ServerInterfaceWrapper) GetForecastCity(c *gin.Context) {
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetWeatherParams
+	var params GetForecastCityParams
 
-	// ------------- Required query parameter "lat" -------------
+	// ------------- Required query parameter "city" -------------
 
-	if paramValue := c.Query("lat"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument lat is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameterWithOptions("form", true, true, "lat", c.Request.URL.Query(), &params.Lat, runtime.BindQueryParameterOptions{Type: "number", Format: "double"})
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter lat: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Required query parameter "lon" -------------
-
-	if paramValue := c.Query("lon"); paramValue != "" {
+	if paramValue := c.Query("city"); paramValue != "" {
 
 	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument lon is required, but not found"), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Query argument city is required, but not found"), http.StatusBadRequest)
 		return
 	}
 
-	err = runtime.BindQueryParameterWithOptions("form", true, true, "lon", c.Request.URL.Query(), &params.Lon, runtime.BindQueryParameterOptions{Type: "number", Format: "double"})
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "city", c.Request.URL.Query(), &params.City, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter lon: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter city: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -81,7 +90,106 @@ func (siw *ServerInterfaceWrapper) GetWeather(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetWeather(c, params)
+	siw.Handler.GetForecastCity(c, params)
+}
+
+// GetForecastCoordinate operation middleware
+func (siw *ServerInterfaceWrapper) GetForecastCoordinate(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetForecastCoordinateParams
+
+	// ------------- Required query parameter "coord" -------------
+
+	if paramValue := c.Query("coord"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument coord is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "coord", c.Request.URL.Query(), &params.Coord, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter coord: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetForecastCoordinate(c, params)
+}
+
+// GetWeatherCity operation middleware
+func (siw *ServerInterfaceWrapper) GetWeatherCity(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetWeatherCityParams
+
+	// ------------- Required query parameter "city" -------------
+
+	if paramValue := c.Query("city"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument city is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "city", c.Request.URL.Query(), &params.City, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter city: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetWeatherCity(c, params)
+}
+
+// GetWeatherCoordinate operation middleware
+func (siw *ServerInterfaceWrapper) GetWeatherCoordinate(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetWeatherCoordinateParams
+
+	// ------------- Required query parameter "coord" -------------
+
+	if paramValue := c.Query("coord"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument coord is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "coord", c.Request.URL.Query(), &params.Coord, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter coord: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetWeatherCoordinate(c, params)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -111,5 +219,8 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.GET(options.BaseURL+"/weather", wrapper.GetWeather)
+	router.GET(options.BaseURL+"/forecast/city", wrapper.GetForecastCity)
+	router.GET(options.BaseURL+"/forecast/coordinate", wrapper.GetForecastCoordinate)
+	router.GET(options.BaseURL+"/weather/city", wrapper.GetWeatherCity)
+	router.GET(options.BaseURL+"/weather/coordinate", wrapper.GetWeatherCoordinate)
 }

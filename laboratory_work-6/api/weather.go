@@ -28,7 +28,7 @@ func NewCurrentWeatherHandler(key, url string) (*WeatherHandler, error) {
 }
 
 func (h *WeatherHandler) GetWeather(c *gin.Context, params GetWeatherParams) {
-	result, err := h.Controller.GetWeather(params.Lat, params.Lon)
+	result, err := h.Controller.GetWeatherCoordinates(params.Lat, params.Lon)
 	if err != nil {
 		c.JSON(500, responses.StatusResponse{Code: 500, Message: err.Error()})
 		return
