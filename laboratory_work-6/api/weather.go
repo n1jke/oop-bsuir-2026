@@ -3,28 +3,21 @@ package api
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/clients"
 	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/controllers"
 	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/models/weather"
 	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/shared/responses"
 )
 
 type WeatherHandler struct {
-	Controller controllers.CurrentWeatherController[*clients.OpenWeatherClient]
+	Controller controllers.CurrentWeatherController[controllers.WeatherDataClient]
 }
 
-func NewCurrentWeatherHandler(key, url string) (*WeatherHandler, error) {
-	client, err := clients.NewOpenWeatherClient(key, url, http.DefaultClient)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create weather client: %w", err)
-	}
-
+func NewCurrentWeatherHandler(client controllers.WeatherDataClient) (*WeatherHandler, error) {
 	return &WeatherHandler{
 		Controller: *controllers.NewCurrentWeatherController(client),
 	}, nil

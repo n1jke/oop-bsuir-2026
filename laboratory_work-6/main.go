@@ -16,7 +16,12 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	currentWeatherHandler, err := api.NewCurrentWeatherHandler(cfg.OpenWeatherKey, cfg.OpenWeatherURL)
+	client, err := utils.ParseProvideFlag(cfg)
+	if err != nil {
+		log.Fatalf("Error getting client: %v", err)
+	}
+
+	currentWeatherHandler, err := api.NewCurrentWeatherHandler(client)
 	if err != nil {
 		log.Fatalf("Error creating weather handler: %v", err)
 	}
