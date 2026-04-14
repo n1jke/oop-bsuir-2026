@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/models/weather"
 )
 
 var ErrInvalidParam = errors.New("invalid param")
@@ -49,7 +51,7 @@ func NewOpenWeatherClient(apiKey, baseURL string, client WebClient) (*OpenWeathe
 
 // Implementation of WeatherDataClient.
 func (c *OpenWeatherClient) LocationCurrentTemperature(lat, lon float64) (float64, error) {
-	url := fmt.Sprintf("%s?lat=%.6f&lon=%.6f&appid=%s&units=metric", c.baseURL, lat, lon, c.apiKey)
+	url := fmt.Sprintf("%s/weather?lat=%.6f&lon=%.6f&appid=%s&units=metric", c.baseURL, lat, lon, c.apiKey)
 
 	resp, err := c.client.Get(url)
 	if err != nil {
@@ -67,4 +69,16 @@ func (c *OpenWeatherClient) LocationCurrentTemperature(lat, lon float64) (float6
 	}
 
 	return data.Main.Temp, nil
+}
+
+func (c *OpenWeatherClient) LocationForecast(lat, lon float64) (forecast weather.Forecast, err error) {
+	panic("not implemented")
+}
+
+func (c *OpenWeatherClient) CityCurrentTemperature(city string) (temperature float64, err error) {
+	panic("not implemented")
+}
+
+func (c *OpenWeatherClient) CityForecast(city string) (forecast weather.Forecast, err error) {
+	panic("not implemented")
 }

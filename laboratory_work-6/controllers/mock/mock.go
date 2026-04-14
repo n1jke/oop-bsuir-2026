@@ -12,6 +12,7 @@ package mock
 import (
 	reflect "reflect"
 
+	weather "github.com/n1jke/oop-bsuir-2026/laboratory_work-6/models/weather"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -39,11 +40,41 @@ func (m *MockWeatherDataClient) EXPECT() *MockWeatherDataClientMockRecorder {
 	return m.recorder
 }
 
+// CityCurrentTemperature mocks base method.
+func (m *MockWeatherDataClient) CityCurrentTemperature(city string) (weather.CurrentWeather, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CityCurrentTemperature", city)
+	ret0, _ := ret[0].(weather.CurrentWeather)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CityCurrentTemperature indicates an expected call of CityCurrentTemperature.
+func (mr *MockWeatherDataClientMockRecorder) CityCurrentTemperature(city any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CityCurrentTemperature", reflect.TypeOf((*MockWeatherDataClient)(nil).CityCurrentTemperature), city)
+}
+
+// CityForecast mocks base method.
+func (m *MockWeatherDataClient) CityForecast(city string) (weather.Forecast, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CityForecast", city)
+	ret0, _ := ret[0].(weather.Forecast)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CityForecast indicates an expected call of CityForecast.
+func (mr *MockWeatherDataClientMockRecorder) CityForecast(city any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CityForecast", reflect.TypeOf((*MockWeatherDataClient)(nil).CityForecast), city)
+}
+
 // LocationCurrentTemperature mocks base method.
-func (m *MockWeatherDataClient) LocationCurrentTemperature(lat, lon float64) (float64, error) {
+func (m *MockWeatherDataClient) LocationCurrentTemperature(lat, lon float64) (weather.CurrentWeather, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LocationCurrentTemperature", lat, lon)
-	ret0, _ := ret[0].(float64)
+	ret0, _ := ret[0].(weather.CurrentWeather)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -52,4 +83,19 @@ func (m *MockWeatherDataClient) LocationCurrentTemperature(lat, lon float64) (fl
 func (mr *MockWeatherDataClientMockRecorder) LocationCurrentTemperature(lat, lon any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LocationCurrentTemperature", reflect.TypeOf((*MockWeatherDataClient)(nil).LocationCurrentTemperature), lat, lon)
+}
+
+// LocationForecast mocks base method.
+func (m *MockWeatherDataClient) LocationForecast(lat, lon float64) (weather.Forecast, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LocationForecast", lat, lon)
+	ret0, _ := ret[0].(weather.Forecast)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LocationForecast indicates an expected call of LocationForecast.
+func (mr *MockWeatherDataClientMockRecorder) LocationForecast(lat, lon any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LocationForecast", reflect.TypeOf((*MockWeatherDataClient)(nil).LocationForecast), lat, lon)
 }
