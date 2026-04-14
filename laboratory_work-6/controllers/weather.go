@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/n1jke/oop-bsuir-2026/laboratory_work-6/models/weather"
 )
+
+var ErrUnsupportedCity = errors.New("unsupported city")
 
 //go:generate mockgen -source=weather.go -destination=mock/mock.go -package=mock
 type WeatherDataClient interface {
@@ -37,7 +40,7 @@ func (c *CurrentWeatherController[T]) GetWeatherCoordinates(lat, lon float64) (w
 
 func (c *CurrentWeatherController[T]) GetWeatherCity(city string) (weather.CurrentWeather, error) {
 	if !isAllowedCity(city) {
-		return weather.CurrentWeather{}, fmt.Errorf("unsupported city: %s", city)
+		return weather.CurrentWeather{}, fmt.Errorf("%w: %s", ErrUnsupportedCity, city)
 	}
 
 	result, err := c.Client.CityCurrentTemperature(city)

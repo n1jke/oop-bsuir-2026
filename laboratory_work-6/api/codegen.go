@@ -11,6 +11,48 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// CurrentWeather defines model for CurrentWeather.
+type CurrentWeather struct {
+	Temperature *float32 `json:"temperature,omitempty"`
+}
+
+// CurrentWeatherArray defines model for CurrentWeatherArray.
+type CurrentWeatherArray = []CurrentWeather
+
+// Forecast defines model for Forecast.
+type Forecast struct {
+	Forecast *[]ForecastPoint `json:"forecast,omitempty"`
+}
+
+// ForecastArray defines model for ForecastArray.
+type ForecastArray = []Forecast
+
+// ForecastPoint defines model for ForecastPoint.
+type ForecastPoint struct {
+	Temperature *float32 `json:"temperature,omitempty"`
+	Time        *int64   `json:"time,omitempty"`
+}
+
+// StatusResponse defines model for StatusResponse.
+type StatusResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+// SuccessResponseCurrentWeatherArray defines model for SuccessResponseCurrentWeatherArray.
+type SuccessResponseCurrentWeatherArray struct {
+	Code    *int                 `json:"code,omitempty"`
+	Data    *CurrentWeatherArray `json:"data,omitempty"`
+	Message *string              `json:"message,omitempty"`
+}
+
+// SuccessResponseForecastArray defines model for SuccessResponseForecastArray.
+type SuccessResponseForecastArray struct {
+	Code    *int           `json:"code,omitempty"`
+	Data    *ForecastArray `json:"data,omitempty"`
+	Message *string        `json:"message,omitempty"`
+}
+
 // GetForecastCityParams defines parameters for GetForecastCity.
 type GetForecastCityParams struct {
 	// City City name

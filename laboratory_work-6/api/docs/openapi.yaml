@@ -1,11 +1,8 @@
 openapi: 3.0.0
-basePath: /api/v1
-
 info:
   contact: {}
   title: Wheather Example API
   version: "1.0"
-
 paths:
   /weather/coordinate:
     get:
@@ -22,21 +19,25 @@ paths:
             type: string
         example:
           - "53.9,27.56"
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_CurrentWeather'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseCurrentWeatherArray'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
       summary: Get Current Weather
       tags:
       - weather
@@ -56,21 +57,25 @@ paths:
             type: string
         example:
           - Минск
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_CurrentWeather'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseCurrentWeatherArray'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
       summary: Get Current Weather
       tags:
       - weather
@@ -90,21 +95,25 @@ paths:
             type: string
         example:
           - "53.9,27.56"
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_Forecast'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseForecastArray'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
       summary: Get Forecast
       tags:
       - forecast
@@ -124,68 +133,81 @@ paths:
             type: string
         example:
           - Минск
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/shared_responses.SuccessResponse-models_weather_Forecast'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseForecastArray'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/shared_responses.StatusResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
       summary: Get Forecast
       tags:
       - forecast
 
-definitions:
-  models_weather.CurrentWeather:
-    properties:
-      temperature:
-        type: number
-    type: object
-  models_weather.ForecastPoint:
-    properties:
-      time:
-        type: integer
-        format: int64
-      temperature:
-        type: number
-    type: object
-  models_weather.Forecast:
-    properties:
-      forecast:
-        type: array
-        items:
-          $ref: '#/definitions/models_weather.ForecastPoint'
-    type: object
-  shared_responses.StatusResponse:
-    properties:
-      code:
-        type: integer
-      message:
-        type: string
-    type: object
-  shared_responses.SuccessResponse-models_weather_CurrentWeather:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/models_weather.CurrentWeather'
-      message:
-        type: string
-    type: object
-  shared_responses.SuccessResponse-models_weather_Forecast:
-    properties:
-      code:
-        type: integer
-      data:
-        $ref: '#/definitions/models_weather.Forecast'
-      message:
-        type: string
-    type: object
+components:
+  schemas:
+    CurrentWeather:
+      properties:
+        temperature:
+          type: number
+      type: object
+    ForecastPoint:
+      properties:
+        time:
+          type: integer
+          format: int64
+        temperature:
+          type: number
+      type: object
+    Forecast:
+      properties:
+        forecast:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForecastPoint'
+      type: object
+    CurrentWeatherArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/CurrentWeather'
+    ForecastArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Forecast'
+    StatusResponse:
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      type: object
+    SuccessResponseCurrentWeatherArray:
+      properties:
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/CurrentWeatherArray'
+        message:
+          type: string
+      type: object
+    SuccessResponseForecastArray:
+      properties:
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/ForecastArray'
+        message:
+          type: string
+      type: object
