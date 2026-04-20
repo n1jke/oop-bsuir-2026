@@ -1,0 +1,6 @@
+package: api
+generate:
+  gin-server: true
+  client: false
+  models: true
+output: ./../codegen.go

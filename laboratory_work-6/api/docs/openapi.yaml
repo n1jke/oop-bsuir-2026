@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  title: Wheather Example API
+  version: "1.0"
+paths:
+  /weather/coordinate:
+    get:
+      description: Get Current Weather for multiple coordinates.
+      parameters:
+      - name: coord
+        in: query
+        description: List of coordinates in format 'lat,lon'.
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - "53.9,27.56"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseCurrentWeatherArray'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      summary: Get Current Weather
+      tags:
+      - weather
+
+  /weather/city:
+    get:
+      description: Returns current weather for given city
+      parameters:
+      - name: city
+        in: query
+        description: City name
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - Минск
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseCurrentWeatherArray'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      summary: Get Current Weather
+      tags:
+      - weather
+
+  /forecast/coordinate:
+    get:
+      description: Get Forecast for multiple coordinates.
+      parameters:
+      - name: coord
+        in: query
+        description: List of coordinates in format 'lat,lon'.
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - "53.9,27.56"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseForecastArray'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      summary: Get Forecast
+      tags:
+      - forecast
+
+  /forecast/city:
+    get:
+      description: Returns forecast for given city
+      parameters:
+      - name: city
+        in: query
+        description: City name
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - Минск
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseForecastArray'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+      summary: Get Forecast
+      tags:
+      - forecast
+
+components:
+  schemas:
+    CurrentWeather:
+      properties:
+        temperature:
+          type: number
+      type: object
+    ForecastPoint:
+      properties:
+        time:
+          type: integer
+          format: int64
+        temperature:
+          type: number
+      type: object
+    Forecast:
+      properties:
+        forecast:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForecastPoint'
+      type: object
+    CurrentWeatherArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/CurrentWeather'
+    ForecastArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Forecast'
+    StatusResponse:
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      type: object
+    SuccessResponseCurrentWeatherArray:
+      properties:
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/CurrentWeatherArray'
+        message:
+          type: string
+      type: object
+    SuccessResponseForecastArray:
+      properties:
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/ForecastArray'
+        message:
+          type: string
+      type: object
