@@ -11,7 +11,7 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT # todo: ?! 
+      bearerFormat: JWT 
   
   schemas:
     User:
@@ -34,10 +34,9 @@ components:
           format: uuid
         title:
           type: string
-        authorID:
+        authorName:
           type: string
-          format: uuid
-        isbn:
+        ISBN:
           type: string
         description:
           type: string
@@ -52,13 +51,13 @@ components:
         id:
           type: string
           format: uuid
-        ownedBookID:
+        ownedBookId:
           type: string
           format: uuid
-        fromID:
+        fromId:
           type: string
           format: uuid
-        toID:
+        toId:
           type: string
           format: uuid
         status:
@@ -79,10 +78,13 @@ components:
         id:
           type: string
           format: uuid
-        fromID:
+        fromId:
           type: string
           format: uuid
-        toID:
+        toId:
+          type: string
+          format: uuid
+        bookId:
           type: string
           format: uuid
         mark:
@@ -133,7 +135,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  Id:
                     type: string
                     format: uuid
                   token:
@@ -253,6 +255,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /books/{bookId}:
+    get:
+      tags:
+        - Books
+      summary: Get book details
+      operationId: getBookByID
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List all users
+      operationId: getUsers
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
 
   /users/me/library:
     get:
@@ -395,6 +440,60 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /exchanges/{exchangeId}/reject:
+    put:
+      tags:
+        - Exchanges
+      summary: Reject exchange request
+      operationId: rejectExchange
+      parameters:
+        - name: exchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exchange rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '400':
+          description: Cannot reject exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /exchanges/{exchangeId}/cancel:
+    put:
+      tags:
+        - Exchanges
+      summary: Cancel exchange request
+      operationId: cancelExchange
+      parameters:
+        - name: exchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exchange canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '400':
+          description: Cannot cancel exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /users/me/exchanges:
     get:
       tags:
@@ -419,3 +518,81 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ExchangeRequest'
+
+  /reviews/books:
+    post:
+      tags:
+        - Reviews
+      summary: Add book review
+      operationId: createBookReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookId:
+                  type: string
+                  format: uuid
+                mark:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                report:
+                  type: string
+              required:
+                - bookId
+                - mark
+      responses:
+        '201':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reviews/users:
+    post:
+      tags:
+        - Reviews
+      summary: Add user review
+      operationId: createUserReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                mark:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                report:
+                  type: string
+              required:
+                - userId
+                - mark
+      responses:
+        '201':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

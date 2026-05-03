@@ -3,4 +3,4 @@ generate:
   std-http-server: true
   client: false
   models: true
-output: ./../../internal/infrastructure/http/codegen.go
+output: ./../internal/infrastructure/http/codegen/codegen.go
