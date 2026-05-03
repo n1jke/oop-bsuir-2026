@@ -1,6 +1,6 @@
 package: bothttp
 generate:
   std-http-server: true
-  client: true
+  client: false
   models: true
-output: ./../../internal/transport/http/bot/codegen.go
+output: ./../../internal/infrastructure/http/codegen.go
