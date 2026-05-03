@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,11 +25,12 @@ type DatePolicy struct {
 func (d *DatePolicy) ChangeExpireDate(expDate time.Time) error {
 	now := time.Now()
 	if now.After(expDate) {
-		return errors.New("oekf") // todo move to custom error or const err with fmt.Errorf
+		return ErrExpireDateInPast
 	}
 
 	d.updatedAT = now
 	d.expiresAT = expDate
+
 	return nil
 }
 
@@ -52,6 +52,11 @@ func NewExchangeRequest(ownedBookID, fromID, toID uuid.UUID, d *DatePolicy, note
 	if d == nil {
 		return nil, ErrDatePolicyNotConfigure
 	}
+
+	if fromID == toID {
+		return nil, ErrSelfExchange
+	}
+
 	return &ExchangeRequest{
 		id:          uuid.New(),
 		ownedBookID: ownedBookID,
@@ -83,27 +88,51 @@ func (er *ExchangeRequest) Status() ExchangeStatus {
 	return er.status
 }
 
-// fine tune & improve state machine
-func (e *ExchangeRequest) Accept() error {
-	if e.status != Pending {
-		return errors.New("") // create custom error using snipper goerr
+func (er *ExchangeRequest) Accept() error {
+	if er.status != Pending {
+		return ErrInvalidExchangeTransition
 	}
-	e.status = Accepted
-	e.dateInfo.Update()
+
+	er.status = Accepted
+	er.dateInfo.Update()
+
 	return nil
 }
 
-func (e *ExchangeRequest) Reject() error {
-	if e.status != Pending {
-		return errors.New("") // create custom error using snipper goerr
+func (er *ExchangeRequest) Reject() error {
+	if er.status != Pending {
+		return ErrInvalidExchangeTransition
 	}
-	e.status = Rejected
-	e.dateInfo.Update()
+
+	er.status = Rejected
+	er.dateInfo.Update()
+
+	return nil
+}
+
+func (er *ExchangeRequest) Complete() error {
+	if er.status != Accepted {
+		return ErrInvalidExchangeTransition
+	}
+
+	er.status = Completed
+	er.dateInfo.Update()
+
+	return nil
+}
+
+func (er *ExchangeRequest) Cancel() error {
+	if er.status == Completed || er.status == Canceled {
+		return ErrInvalidExchangeTransition
+	}
+
+	er.status = Canceled
+	er.dateInfo.Update()
+
 	return nil
 }
 
 func (er *ExchangeRequest) DateInfo() DatePolicy {
-	// todo: maybe return copy?
 	return *er.dateInfo
 }
 

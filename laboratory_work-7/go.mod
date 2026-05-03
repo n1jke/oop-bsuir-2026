@@ -6,6 +6,8 @@ require go.uber.org/fx v1.24.0
 
 require github.com/google/uuid v1.6.0
 
+require github.com/stretchr/testify v1.11.1 // indirect
+
 require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/joho/godotenv v1.5.1

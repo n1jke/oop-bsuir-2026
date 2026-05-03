@@ -14,5 +14,6 @@ func (r *Rating) GetRating() float64 {
 	if r.reviewCount == 0 {
 		return 0
 	}
+
 	return float64(r.points) / float64(r.reviewCount)
 }

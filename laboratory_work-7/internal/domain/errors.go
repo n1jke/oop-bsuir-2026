@@ -6,14 +6,16 @@ import (
 )
 
 var (
-	ErrInvalidISBN            = errors.New("invalid ISBN identifier")
-	ErrLongDescription        = errors.New("description is too long")
-	ErrSelfReview             = errors.New("user cannot review themselves")
-	ErrInvalidStatus          = errors.New("invalid exchange status move")
-	ErrDatePolicyNotConfigure = errors.New("DatePolicy not configure")
+	ErrInvalidISBN               = errors.New("invalid ISBN identifier")
+	ErrLongDescription           = errors.New("description is too long")
+	ErrSelfReview                = errors.New("user cannot review themselves")
+	ErrInvalidStatus             = errors.New("invalid exchange status move")
+	ErrDatePolicyNotConfigure    = errors.New("DatePolicy not configure")
+	ErrInvalidExchangeTransition = errors.New("invalid exchange status transition")
+	ErrExpireDateInPast          = errors.New("expire date cannot be in the past")
+	ErrSelfExchange              = errors.New("cannot request exchange from yourself")
 )
 
-// ErrMark
 type ErrMark struct {
 	Mark uint
 }

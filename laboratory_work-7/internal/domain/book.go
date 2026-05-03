@@ -11,13 +11,39 @@ const MaxDescriptionLength = 255
 type ISBN string
 
 func NewISBN(ident string) (ISBN, error) {
-	isbn := ISBN(ident)
-
-	if len(ident) != 10 && len(ident) != 13 {
+	if ident == "" {
 		return "", ErrInvalidISBN
 	}
 
-	return isbn, nil
+	n := len(ident)
+
+	if !isDigit(ident[0]) || !isDigit(ident[n-1]) {
+		return "", ErrInvalidISBN
+	}
+
+	digitCount := 0
+
+	for i := 0; i < n; i++ {
+		ch := ident[i]
+
+		if !isDigit(ch) && ch != '-' {
+			return "", ErrInvalidISBN
+		}
+
+		if ch == '-' && i > 0 && ident[i-1] == '-' {
+			return "", ErrInvalidISBN
+		}
+
+		if isDigit(ch) {
+			digitCount++
+		}
+	}
+
+	if digitCount != 10 && digitCount != 13 {
+		return "", ErrInvalidISBN
+	}
+
+	return ISBN(ident), nil
 }
 
 type Book struct {
@@ -70,6 +96,7 @@ func (b *Book) UpdateDescription(descr string) error {
 	}
 
 	b.description = descr
+
 	return nil
 }
 
@@ -100,3 +127,11 @@ const (
 	Rent
 	Hidden
 )
+
+func isDigit(d byte) bool {
+	if d < '0' || d > '9' {
+		return false
+	}
+
+	return true
+}
