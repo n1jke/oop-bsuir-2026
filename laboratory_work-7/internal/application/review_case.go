@@ -31,7 +31,7 @@ func NewReviewService(logger *slog.Logger, reviewRepo ReviewRepository, bookRepo
 	}
 }
 
-func (r *ReviewService) AddBookReview(ctx context.Context, userID, bookID uuid.UUID, mark uint, rep string) (BookReviewDTO, error) {
+func (r *ReviewService) AddBookReview(ctx context.Context, userID, bookID uuid.UUID, mark uint, rep string) (*BookReviewDTO, error) {
 	var (
 		review *domain.BookReview
 		errIn  error
@@ -42,10 +42,10 @@ func (r *ReviewService) AddBookReview(ctx context.Context, userID, bookID uuid.U
 		return errIn
 	})
 	if err != nil {
-		return BookReviewDTO{}, err
+		return nil, err
 	}
 
-	return BookReviewDTO{
+	return &BookReviewDTO{
 		ID:     review.ID(),
 		FromID: review.UserID(),
 		BookID: review.BookID(),

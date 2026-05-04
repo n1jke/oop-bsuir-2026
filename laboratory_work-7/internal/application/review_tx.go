@@ -61,7 +61,7 @@ func (r *ReviewService) addUserReviewTx(ctx context.Context, fromID, toID uuid.U
 	}
 
 	_, err = r.userRepo.GetByID(ctx, toID)
-	if err != nil { // move to func
+	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			return nil, ErrUserNotFound
 		}

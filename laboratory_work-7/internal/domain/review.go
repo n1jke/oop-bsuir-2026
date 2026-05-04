@@ -77,12 +77,24 @@ func NewBookReview(userID, bookID uuid.UUID, mark uint, report string) (*BookRev
 	return &BookReview{r: r}, nil
 }
 
+func (b *BookReview) ID() uuid.UUID {
+	return b.r.id
+}
+
 func (b *BookReview) UserID() uuid.UUID {
 	return b.r.fromID
 }
 
 func (b *BookReview) BookID() uuid.UUID {
 	return b.r.toID
+}
+
+func (b *BookReview) Mark() uint {
+	return b.r.mark
+}
+
+func (b *BookReview) Report() string {
+	return b.r.report
 }
 
 type UserReview struct {
@@ -96,6 +108,10 @@ func NewUserReview(fromUserID, toUserID uuid.UUID, mark uint, report string) (*U
 	}
 
 	return &UserReview{r: r}, nil
+}
+
+func (u *UserReview) ID() uuid.UUID {
+	return u.r.id
 }
 
 func (u *UserReview) FromID() uuid.UUID {

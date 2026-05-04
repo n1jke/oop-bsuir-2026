@@ -112,10 +112,10 @@ func (mr *MockBookRepositoryMockRecorder) GetByID(ctx, bookID any) *gomock.Call 
 }
 
 // GetByTitle mocks base method.
-func (m *MockBookRepository) GetByTitle(ctx context.Context, title string) ([]domain.Book, error) {
+func (m *MockBookRepository) GetByTitle(ctx context.Context, title string) ([]*domain.Book, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByTitle", ctx, title)
-	ret0, _ := ret[0].([]domain.Book)
+	ret0, _ := ret[0].([]*domain.Book)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -180,10 +180,10 @@ func (mr *MockExchangeRepositoryMockRecorder) GetByID(ctx, exchangeID any) *gomo
 }
 
 // GetByOwnedBook mocks base method.
-func (m *MockExchangeRepository) GetByOwnedBook(ctx context.Context, ownedBookID uuid.UUID) ([]domain.ExchangeRequest, error) {
+func (m *MockExchangeRepository) GetByOwnedBook(ctx context.Context, ownedBookID uuid.UUID) ([]*domain.ExchangeRequest, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByOwnedBook", ctx, ownedBookID)
-	ret0, _ := ret[0].([]domain.ExchangeRequest)
+	ret0, _ := ret[0].([]*domain.ExchangeRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -195,10 +195,10 @@ func (mr *MockExchangeRepositoryMockRecorder) GetByOwnedBook(ctx, ownedBookID an
 }
 
 // GetByUserID mocks base method.
-func (m *MockExchangeRepository) GetByUserID(ctx context.Context, userID uuid.UUID, status string) ([]domain.ExchangeRequest, error) {
+func (m *MockExchangeRepository) GetByUserID(ctx context.Context, userID uuid.UUID, status string) ([]*domain.ExchangeRequest, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", ctx, userID, status)
-	ret0, _ := ret[0].([]domain.ExchangeRequest)
+	ret0, _ := ret[0].([]*domain.ExchangeRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -264,10 +264,10 @@ func (mr *MockOwnedBookRepositoryMockRecorder) Add(ctx, ownedBook any) *gomock.C
 }
 
 // GetByUserID mocks base method.
-func (m *MockOwnedBookRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]domain.OwnedBook, error) {
+func (m *MockOwnedBookRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.OwnedBook, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", ctx, userID)
-	ret0, _ := ret[0].([]domain.OwnedBook)
+	ret0, _ := ret[0].([]*domain.OwnedBook)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -361,10 +361,10 @@ func (mr *MockReviewRepositoryMockRecorder) AddUserReview(ctx, review any) *gomo
 }
 
 // GetBookReviews mocks base method.
-func (m *MockReviewRepository) GetBookReviews(ctx context.Context, bookID uuid.UUID) ([]domain.BookReview, error) {
+func (m *MockReviewRepository) GetBookReviews(ctx context.Context, bookID uuid.UUID) ([]*domain.BookReview, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBookReviews", ctx, bookID)
-	ret0, _ := ret[0].([]domain.BookReview)
+	ret0, _ := ret[0].([]*domain.BookReview)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -376,10 +376,10 @@ func (mr *MockReviewRepositoryMockRecorder) GetBookReviews(ctx, bookID any) *gom
 }
 
 // GetUserReviews mocks base method.
-func (m *MockReviewRepository) GetUserReviews(ctx context.Context, userID uuid.UUID) ([]domain.UserReview, error) {
+func (m *MockReviewRepository) GetUserReviews(ctx context.Context, userID uuid.UUID) ([]*domain.UserReview, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserReviews", ctx, userID)
-	ret0, _ := ret[0].([]domain.UserReview)
+	ret0, _ := ret[0].([]*domain.UserReview)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -430,10 +430,10 @@ func (mr *MockUserRepositoryMockRecorder) Add(ctx, login, password any) *gomock.
 }
 
 // GetAll mocks base method.
-func (m *MockUserRepository) GetAll(ctx context.Context) ([]application.UserRepoDTO, error) {
+func (m *MockUserRepository) GetAll(ctx context.Context) ([]*application.UserRepoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll", ctx)
-	ret0, _ := ret[0].([]application.UserRepoDTO)
+	ret0, _ := ret[0].([]*application.UserRepoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

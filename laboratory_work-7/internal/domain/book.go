@@ -119,6 +119,31 @@ type OwnedBook struct {
 	status  OwnedBookStatus
 }
 
+func NewOwnedBook(bookID, ownerID uuid.UUID) (*OwnedBook, error) {
+	return &OwnedBook{
+		id:      uuid.New(),
+		bookID:  bookID,
+		ownerID: ownerID,
+		status:  Available,
+	}, nil
+}
+
+func (o *OwnedBook) ID() uuid.UUID {
+	return o.id
+}
+
+func (o *OwnedBook) BookID() uuid.UUID {
+	return o.bookID
+}
+
+func (o *OwnedBook) OwnerID() uuid.UUID {
+	return o.ownerID
+}
+
+func (o *OwnedBook) Status() OwnedBookStatus {
+	return o.status
+}
+
 type OwnedBookStatus int
 
 const (

@@ -18,6 +18,7 @@ type BookRepository interface {
 	Add(ctx context.Context, book domain.Book) (domain.Book, error)
 	GetByTitle(ctx context.Context, title string) ([]*domain.Book, error)
 	GetByID(ctx context.Context, bookID uuid.UUID) (domain.Book, error)
+	GetByISBN(ctx context.Context, isbn string) (domain.Book, error)
 }
 
 type ExchangeRepository interface {
