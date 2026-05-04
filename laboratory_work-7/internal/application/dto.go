@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// api dto
+
 type UserDTO struct {
 	ID     uuid.UUID
 	Name   string
@@ -13,7 +15,7 @@ type UserDTO struct {
 }
 
 type BookDTO struct {
-	Id          uuid.UUID
+	ID          uuid.UUID
 	Title       string
 	AuthorName  string
 	ISBN        string
@@ -27,10 +29,10 @@ type BookListResponse struct {
 }
 
 type ExchangeDTO struct {
-	Id          uuid.UUID
-	OwnedBookId uuid.UUID
-	FromId      uuid.UUID
-	ToId        uuid.UUID
+	ID          uuid.UUID
+	OwnedBookID uuid.UUID
+	FromID      uuid.UUID
+	ToID        uuid.UUID
 	Status      string
 	CreatedAt   time.Time
 	ExpiresAt   time.Time
@@ -38,10 +40,10 @@ type ExchangeDTO struct {
 }
 
 type ReviewDTO struct {
-	Id     uuid.UUID
-	FromId uuid.UUID
-	ToId   uuid.UUID
-	BookId uuid.UUID
+	ID     uuid.UUID
+	FromID uuid.UUID
+	ToID   uuid.UUID
+	BookID uuid.UUID
 	Mark   uint
 	Report string
 }
@@ -54,4 +56,13 @@ type LoginResponse struct {
 type RegisterResponse struct {
 	ID    uuid.UUID
 	Token string
+}
+
+// infra dto
+
+type UserRepoDTO struct {
+	ID           uuid.UUID
+	Name         string
+	PasswordHash string
+	Rating       float64
 }
