@@ -32,7 +32,7 @@ func NewAuthService(logger *slog.Logger, repo UserRepository, tx Transactor, sec
 	}
 }
 
-func (a *AuthService) Register(ctx context.Context, username, password string) (RegisterResponse, error) {
+func (a *AuthService) Register(ctx context.Context, username, password string) (*RegisterResponse, error) {
 	var (
 		errIn  error
 		userID uuid.UUID
@@ -43,45 +43,45 @@ func (a *AuthService) Register(ctx context.Context, username, password string) (
 		return errIn
 	})
 	if err != nil {
-		return RegisterResponse{}, err
+		return nil, err
 	}
 
 	token, err := a.generateJWT(userID)
 	if err != nil {
 		a.logger.Error("generating JWT", slog.Any("err", err))
-		return RegisterResponse{}, fmt.Errorf("generating JWT: %w", err)
+		return nil, fmt.Errorf("generating JWT: %w", err)
 	}
 
-	return RegisterResponse{
+	return &RegisterResponse{
 		ID:    userID,
 		Token: token,
 	}, nil
 }
 
-func (a *AuthService) Login(ctx context.Context, username, password string) (LoginResponse, error) {
+func (a *AuthService) Login(ctx context.Context, username, password string) (*LoginResponse, error) {
 	userDTO, err := a.userRepo.GetByLogin(ctx, username)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			return LoginResponse{}, ErrInvalidCredentials
+			return nil, ErrInvalidCredentials
 		}
 
 		a.logger.Error("get by id from userRepo", slog.String("username", username), slog.Any("err", err))
 
-		return LoginResponse{}, ErrUnvailible
+		return nil, ErrUnvailible
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(userDTO.PasswordHash), []byte(password))
 	if err != nil {
-		return LoginResponse{}, ErrInvalidCredentials
+		return nil, ErrInvalidCredentials
 	}
 
 	token, err := a.generateJWT(userDTO.ID)
 	if err != nil {
 		a.logger.Error("generating JWT", slog.Any("err", err))
-		return LoginResponse{}, fmt.Errorf("generating JWT: %w", err)
+		return nil, fmt.Errorf("generating JWT: %w", err)
 	}
 
-	return LoginResponse{
+	return &LoginResponse{
 		Token: token,
 		User: UserDTO{
 			ID:     userDTO.ID,
