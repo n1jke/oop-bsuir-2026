@@ -8,10 +8,12 @@ import (
 
 type ReviewService struct{}
 
-func (r *ReviewService) AddBookReview(ctx context.Context, userID, bookID uuid.UUID, mark uint, report string) (ReviewDTO, error) {
-	return ReviewDTO{}, nil
+// check: userID and bookID must exist
+func (r *ReviewService) AddBookReview(ctx context.Context, userID, bookID uuid.UUID, mark uint, report string) (BookReviewDTO, error) {
+	return BookReviewDTO{}, nil
 }
 
-func (r *ReviewService) AddUserReview(ctx context.Context, fromUserID, toUserID uuid.UUID, mark uint, report string) (ReviewDTO, error) {
-	return ReviewDTO{}, nil
+// check: fromUserID and toUserID must exist
+func (r *ReviewService) AddUserReview(ctx context.Context, fromUserID, toUserID uuid.UUID, mark uint, report string) (UserReviewDTO, error) {
+	return UserReviewDTO{}, nil
 }

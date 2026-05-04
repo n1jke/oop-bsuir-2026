@@ -39,11 +39,18 @@ type ExchangeDTO struct {
 	Note        string
 }
 
-type ReviewDTO struct {
+type BookReviewDTO struct {
+	ID     uuid.UUID
+	FromID uuid.UUID
+	BookID uuid.UUID
+	Mark   uint
+	Report string
+}
+
+type UserReviewDTO struct {
 	ID     uuid.UUID
 	FromID uuid.UUID
 	ToID   uuid.UUID
-	BookID uuid.UUID
 	Mark   uint
 	Report string
 }

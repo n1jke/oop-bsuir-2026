@@ -4,8 +4,6 @@ import "context"
 
 type AuthService struct{}
 
-// JWT!!!!!!!!!!!
-
 func (a *AuthService) Register(ctx context.Context, username, password string) (RegisterResponse, error) {
 	return RegisterResponse{}, nil
 }
