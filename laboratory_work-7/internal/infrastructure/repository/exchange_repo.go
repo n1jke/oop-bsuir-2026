@@ -65,7 +65,7 @@ func exchangeStatusToStr(s domain.ExchangeStatus) string {
 	case domain.Canceled:
 		return "canceled"
 	default:
-		return "pending"
+		return ""
 	}
 }
 
@@ -86,7 +86,7 @@ func strToExchangeStatus(s string) (domain.ExchangeStatus, error) {
 	}
 }
 
-func (r ExchangeRepoSQL) Add(ctx context.Context, exchange domain.ExchangeRequest) error {
+func (r ExchangeRepoSQL) Add(ctx context.Context, exchange *domain.ExchangeRequest) error {
 	q := GetQuerier(ctx, r.db)
 
 	info := exchange.DateInfo()
@@ -112,8 +112,10 @@ func (r ExchangeRepoSQL) GetByID(ctx context.Context, exchangeID uuid.UUID) (dom
 func (r ExchangeRepoSQL) GetByUserID(ctx context.Context, userID uuid.UUID, status string) ([]*domain.ExchangeRequest, error) {
 	q := GetQuerier(ctx, r.db)
 
-	var rows pgx.Rows
-	var err error
+	var (
+		rows pgx.Rows
+		err  error
+	)
 
 	if status == "" {
 		rows, err = q.Query(ctx, selectExchangesByUser, userID)
@@ -169,7 +171,8 @@ func (r ExchangeRepoSQL) GetByOwnedBook(ctx context.Context, ownedBookID uuid.UU
 	return exchanges, nil
 }
 
-func (r ExchangeRepoSQL) UpdateStatus(ctx context.Context, exchangeID uuid.UUID, status domain.ExchangeStatus) (domain.ExchangeRequest, error) {
+func (r ExchangeRepoSQL) UpdateStatus(ctx context.Context, exchangeID uuid.UUID, status domain.ExchangeStatus,
+) (domain.ExchangeRequest, error) {
 	q := GetQuerier(ctx, r.db)
 
 	statusStr := exchangeStatusToStr(status)
@@ -179,8 +182,8 @@ func (r ExchangeRepoSQL) UpdateStatus(ctx context.Context, exchangeID uuid.UUID,
 
 func scanExchange(row pgx.Row) (domain.ExchangeRequest, error) {
 	var (
-		id, ownedBookID, fromID, toID uuid.UUID
-		statusStr, note string
+		id, ownedBookID, fromID, toID   uuid.UUID
+		statusStr, note                 string
 		createdAt, updatedAt, expiresAt time.Time
 	)
 
@@ -209,8 +212,8 @@ func scanExchange(row pgx.Row) (domain.ExchangeRequest, error) {
 
 func scanExchangePtr(row pgx.Row) (*domain.ExchangeRequest, error) {
 	var (
-		id, ownedBookID, fromID, toID uuid.UUID
-		statusStr, note string
+		id, ownedBookID, fromID, toID   uuid.UUID
+		statusStr, note                 string
 		createdAt, updatedAt, expiresAt time.Time
 	)
 

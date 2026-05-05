@@ -18,7 +18,7 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/auth/") { // todo: os okay? or can be better
+			if strings.HasPrefix(r.URL.Path, "/auth/") {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -27,6 +27,7 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 			if authHeader == "" {
 				logger.Warn("missing authorization header", slog.String("path", r.URL.Path))
 				writeError(w, application.ErrInvalidCredentials)
+
 				return
 			}
 
@@ -34,10 +35,12 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 			if !ok {
 				logger.Warn("invalid authorization header format", slog.String("path", r.URL.Path))
 				writeError(w, application.ErrInvalidCredentials)
+
 				return
 			}
 
 			claims := &jwt.MapClaims{}
+
 			token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (any, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -48,6 +51,7 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 			if err != nil || !token.Valid {
 				logger.Warn("invalid token", slog.String("path", r.URL.Path), slog.Any("err", err))
 				writeError(w, application.ErrInvalidCredentials)
+
 				return
 			}
 
@@ -55,6 +59,7 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 			if !ok {
 				logger.Warn("missing sub claim in token", slog.String("path", r.URL.Path))
 				writeError(w, application.ErrInvalidCredentials)
+
 				return
 			}
 
@@ -62,10 +67,12 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 			if err != nil {
 				logger.Warn("invalid sub claim in token", slog.String("path", r.URL.Path), slog.Any("err", err))
 				writeError(w, application.ErrInvalidCredentials)
+
 				return
 			}
 
 			ctx := context.WithValue(r.Context(), idKey{}, userID)
+			ctx = context.WithValue(ctx, application.UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

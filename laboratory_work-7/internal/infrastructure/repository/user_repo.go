@@ -41,6 +41,7 @@ func (r UserRepoSQL) Add(ctx context.Context, login, password string) (uuid.UUID
 	q := GetQuerier(ctx, r.db)
 
 	id := uuid.New()
+
 	_, err := q.Exec(ctx, createUser, id, login, password)
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -58,6 +59,7 @@ func (r UserRepoSQL) GetByLogin(ctx context.Context, login string) (application.
 	q := GetQuerier(ctx, r.db)
 
 	var dto application.UserRepoDTO
+
 	row := q.QueryRow(ctx, getUserByLogin, login)
 	if err := row.Scan(&dto.ID, &dto.Name, &dto.PasswordHash, &dto.Rating); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -74,6 +76,7 @@ func (r UserRepoSQL) GetByID(ctx context.Context, userID uuid.UUID) (application
 	q := GetQuerier(ctx, r.db)
 
 	var dto application.UserRepoDTO
+
 	row := q.QueryRow(ctx, getUserByID, userID)
 	if err := row.Scan(&dto.ID, &dto.Name, &dto.PasswordHash, &dto.Rating); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

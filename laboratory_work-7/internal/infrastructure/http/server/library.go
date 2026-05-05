@@ -23,7 +23,7 @@ func (h *Handler) GetMyLibrary(w http.ResponseWriter, r *http.Request) {
 
 	resp := make([]codegen.Book, 0, len(books))
 	for _, b := range books {
-		resp = append(resp, mapBookResponse(b))
+		resp = append(resp, mapBookResponse(&b))
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{

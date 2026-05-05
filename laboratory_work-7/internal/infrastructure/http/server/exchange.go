@@ -11,8 +11,9 @@ import (
 	codegen "github.com/n1jke/oop-bsuir-2026/laboratory_work-7/internal/infrastructure/http/codegen"
 )
 
-func mapExchangeResponse(dto application.ExchangeDTO) codegen.ExchangeRequest {
+func mapExchangeResponse(dto *application.ExchangeDTO) codegen.ExchangeRequest {
 	status := codegen.ExchangeRequestStatus(dto.Status)
+
 	return codegen.ExchangeRequest{
 		Id:          &dto.ID,
 		OwnedBookId: &dto.OwnedBookID,
@@ -48,9 +49,10 @@ func (h *Handler) CreateExchange(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, mapExchangeResponse(exchange))
+	writeJSON(w, http.StatusCreated, mapExchangeResponse(&exchange))
 }
 
+//nolint:revive // oapicodegen method name
 func (h *Handler) GetExchange(w http.ResponseWriter, r *http.Request, exchangeId types.UUID) {
 	exchange, err := h.exchangeService.GetExchangeByID(r.Context(), exchangeId)
 	if err != nil {
@@ -58,9 +60,10 @@ func (h *Handler) GetExchange(w http.ResponseWriter, r *http.Request, exchangeId
 		return
 	}
 
-	writeJSON(w, http.StatusOK, mapExchangeResponse(exchange))
+	writeJSON(w, http.StatusOK, mapExchangeResponse(&exchange))
 }
 
+//nolint:revive // oapicodegen method name
 func (h *Handler) AcceptExchange(w http.ResponseWriter, r *http.Request, exchangeId types.UUID) {
 	exchange, err := h.exchangeService.AcceptExchange(r.Context(), exchangeId)
 	if err != nil {
@@ -68,9 +71,10 @@ func (h *Handler) AcceptExchange(w http.ResponseWriter, r *http.Request, exchang
 		return
 	}
 
-	writeJSON(w, http.StatusOK, mapExchangeResponse(exchange))
+	writeJSON(w, http.StatusOK, mapExchangeResponse(&exchange))
 }
 
+//nolint:revive // oapicodegen method name
 func (h *Handler) RejectExchange(w http.ResponseWriter, r *http.Request, exchangeId types.UUID) {
 	exchange, err := h.exchangeService.RejectExchange(r.Context(), exchangeId)
 	if err != nil {
@@ -78,9 +82,10 @@ func (h *Handler) RejectExchange(w http.ResponseWriter, r *http.Request, exchang
 		return
 	}
 
-	writeJSON(w, http.StatusOK, mapExchangeResponse(exchange))
+	writeJSON(w, http.StatusOK, mapExchangeResponse(&exchange))
 }
 
+//nolint:revive // oapicodegen method name
 func (h *Handler) CancelExchange(w http.ResponseWriter, r *http.Request, exchangeId types.UUID) {
 	exchange, err := h.exchangeService.CancelExchange(r.Context(), exchangeId)
 	if err != nil {
@@ -88,7 +93,7 @@ func (h *Handler) CancelExchange(w http.ResponseWriter, r *http.Request, exchang
 		return
 	}
 
-	writeJSON(w, http.StatusOK, mapExchangeResponse(exchange))
+	writeJSON(w, http.StatusOK, mapExchangeResponse(&exchange))
 }
 
 func (h *Handler) GetMyExchanges(w http.ResponseWriter, r *http.Request, params codegen.GetMyExchangesParams) {
@@ -110,8 +115,8 @@ func (h *Handler) GetMyExchanges(w http.ResponseWriter, r *http.Request, params 
 	}
 
 	resp := make([]codegen.ExchangeRequest, 0, len(exchanges))
-	for _, e := range exchanges {
-		resp = append(resp, mapExchangeResponse(e))
+	for i := range exchanges {
+		resp = append(resp, mapExchangeResponse(&exchanges[i]))
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
 	"github.com/n1jke/oop-bsuir-2026/laboratory_work-7/internal/application"
 	codegen "github.com/n1jke/oop-bsuir-2026/laboratory_work-7/internal/infrastructure/http/codegen"
 )
@@ -37,5 +38,4 @@ func NewHandler(authService *application.AuthService, userService *application.U
 	}
 }
 
-// check compatibility, from uber-go codestyle
 var _ codegen.ServerInterface = (*Handler)(nil)

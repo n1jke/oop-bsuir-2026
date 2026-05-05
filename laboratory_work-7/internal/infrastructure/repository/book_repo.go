@@ -41,13 +41,13 @@ const (
 	`
 )
 
-func (r BookRepoSQL) Add(ctx context.Context, book domain.Book) (domain.Book, error) {
+func (r BookRepoSQL) Add(ctx context.Context, book *domain.Book) (domain.Book, error) {
 	q := GetQuerier(ctx, r.db)
 
 	var (
-		id, authorID uuid.UUID
+		id, authorID         uuid.UUID
 		title, desc, isbnStr string
-		topics []string
+		topics               []string
 	)
 
 	row := q.QueryRow(ctx, insertBook, book.ID(), book.Title(), book.AuthorID(), string(book.ISBN()), book.Description(), book.Topics())
@@ -113,9 +113,9 @@ func (r BookRepoSQL) GetByTitle(ctx context.Context, title string) ([]*domain.Bo
 
 func scanBook(row pgx.Row) (domain.Book, error) {
 	var (
-		id, authorID uuid.UUID
+		id, authorID         uuid.UUID
 		title, desc, isbnStr string
-		topics []string
+		topics               []string
 	)
 
 	if err := row.Scan(&id, &title, &authorID, &isbnStr, &desc, &topics); err != nil {
@@ -141,9 +141,9 @@ func scanBook(row pgx.Row) (domain.Book, error) {
 
 func scanBookPtr(row pgx.Row) (*domain.Book, error) {
 	var (
-		id, authorID uuid.UUID
+		id, authorID         uuid.UUID
 		title, desc, isbnStr string
-		topics []string
+		topics               []string
 	)
 
 	if err := row.Scan(&id, &title, &authorID, &isbnStr, &desc, &topics); err != nil {

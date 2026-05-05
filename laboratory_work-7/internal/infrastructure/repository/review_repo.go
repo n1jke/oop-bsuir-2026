@@ -74,8 +74,8 @@ func (r ReviewRepoSQL) GetBookReviews(ctx context.Context, bookID uuid.UUID) ([]
 	for rows.Next() {
 		var (
 			id, userID, bID uuid.UUID
-			mark uint
-			report string
+			mark            uint
+			report          string
 		)
 
 		if err := rows.Scan(&id, &userID, &bID, &mark, &report); err != nil {
@@ -110,8 +110,8 @@ func (r ReviewRepoSQL) GetUserReviews(ctx context.Context, userID uuid.UUID) ([]
 	for rows.Next() {
 		var (
 			id, fromID, toID uuid.UUID
-			mark uint
-			report string
+			mark             uint
+			report           string
 		)
 
 		if err := rows.Scan(&id, &fromID, &toID, &mark, &report); err != nil {

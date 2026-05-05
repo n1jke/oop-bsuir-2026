@@ -39,6 +39,8 @@ const (
 		WHERE id = $1
 		RETURNING id, book_id, owner_id, status
 	`
+
+	uniqueViolation = "23505"
 )
 
 func (r OwnedBookRepoSQL) Add(ctx context.Context, ownedBook domain.OwnedBook) (domain.OwnedBook, error) {
@@ -46,7 +48,7 @@ func (r OwnedBookRepoSQL) Add(ctx context.Context, ownedBook domain.OwnedBook) (
 
 	var (
 		id, bookID, ownerID uuid.UUID
-		status domain.OwnedBookStatus
+		status              domain.OwnedBookStatus
 	)
 
 	row := q.QueryRow(ctx, insertOwnedBook, ownedBook.ID(), ownedBook.BookID(), ownedBook.OwnerID(), ownedBook.Status())
@@ -80,7 +82,7 @@ func (r OwnedBookRepoSQL) GetByUserID(ctx context.Context, userID uuid.UUID) ([]
 	for rows.Next() {
 		var (
 			id, bookID, ownerID uuid.UUID
-			status domain.OwnedBookStatus
+			status              domain.OwnedBookStatus
 		)
 
 		if err := rows.Scan(&id, &bookID, &ownerID, &status); err != nil {
@@ -107,7 +109,7 @@ func (r OwnedBookRepoSQL) GetOwnedBook(ctx context.Context, userID, bookID uuid.
 
 	var (
 		id, obID, ownerID uuid.UUID
-		status domain.OwnedBookStatus
+		status            domain.OwnedBookStatus
 	)
 
 	row := q.QueryRow(ctx, selectOwnedBook, userID, bookID)
@@ -127,12 +129,13 @@ func (r OwnedBookRepoSQL) GetOwnedBook(ctx context.Context, userID, bookID uuid.
 	return *ob, nil
 }
 
-func (r OwnedBookRepoSQL) UpdateStatus(ctx context.Context, ownedBookID uuid.UUID, status domain.OwnedBookStatus) (domain.OwnedBook, error) {
+func (r OwnedBookRepoSQL) UpdateStatus(ctx context.Context, ownedBookID uuid.UUID, status domain.OwnedBookStatus,
+) (domain.OwnedBook, error) {
 	q := GetQuerier(ctx, r.db)
 
 	var (
 		id, bookID, ownerID uuid.UUID
-		newStatus domain.OwnedBookStatus
+		newStatus           domain.OwnedBookStatus
 	)
 
 	row := q.QueryRow(ctx, updateOwnedBookStatus, ownedBookID, status)

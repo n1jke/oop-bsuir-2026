@@ -10,7 +10,7 @@ import (
 	codegen "github.com/n1jke/oop-bsuir-2026/laboratory_work-7/internal/infrastructure/http/codegen"
 )
 
-func mapBookResponse(dto application.BookDTO) codegen.Book {
+func mapBookResponse(dto *application.BookDTO) codegen.Book {
 	return codegen.Book{
 		Id:          &dto.ID,
 		Title:       &dto.Title,
@@ -40,7 +40,7 @@ func (h *Handler) GetBooks(w http.ResponseWriter, r *http.Request, params codege
 
 	books := make([]codegen.Book, 0, len(resp.Books))
 	for _, b := range resp.Books {
-		books = append(books, mapBookResponse(b))
+		books = append(books, mapBookResponse(&b))
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
@@ -72,9 +72,10 @@ func (h *Handler) CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, mapBookResponse(book))
+	writeJSON(w, http.StatusCreated, mapBookResponse(&book))
 }
 
+//nolint:revive // oapicodegen method name
 func (h *Handler) GetBookByID(w http.ResponseWriter, r *http.Request, bookId types.UUID) {
 	book, err := h.bookService.GetBookByID(r.Context(), bookId)
 	if err != nil {
@@ -82,5 +83,5 @@ func (h *Handler) GetBookByID(w http.ResponseWriter, r *http.Request, bookId typ
 		return
 	}
 
-	writeJSON(w, http.StatusOK, mapBookResponse(book))
+	writeJSON(w, http.StatusOK, mapBookResponse(&book))
 }
