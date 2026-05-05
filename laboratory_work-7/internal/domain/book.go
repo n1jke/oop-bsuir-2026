@@ -55,6 +55,17 @@ type Book struct {
 	topics      []string
 }
 
+func CreateBook(id uuid.UUID, title string, authorID uuid.UUID, isbn ISBN, description string, topics ...string) (*Book, error) {
+	return &Book{
+		id:          id,
+		title:       title,
+		authorID:    authorID,
+		isbn:        isbn,
+		description: description,
+		topics:      topics,
+	}, nil
+}
+
 func NewBook(title string, authorID uuid.UUID, isbn ISBN, description string, topics ...string) (*Book, error) {
 	if len(description) > MaxDescriptionLength {
 		return nil, ErrLongDescription
@@ -117,6 +128,15 @@ type OwnedBook struct {
 	bookID  uuid.UUID
 	ownerID uuid.UUID
 	status  OwnedBookStatus
+}
+
+func CreateOwnedBook(id, bookID, ownerID uuid.UUID, status OwnedBookStatus) (*OwnedBook, error) {
+	return &OwnedBook{
+		id:      id,
+		bookID:  bookID,
+		ownerID: ownerID,
+		status:  status,
+	}, nil
 }
 
 func NewOwnedBook(bookID, ownerID uuid.UUID) (*OwnedBook, error) {

@@ -68,6 +68,18 @@ type BookReview struct {
 	r *Review
 }
 
+func CreateBookReview(id, userID, bookID uuid.UUID, mark uint, report string) (*BookReview, error) {
+	return &BookReview{
+		r: &Review{
+			id:     id,
+			fromID: userID,
+			toID:   bookID,
+			mark:   mark,
+			report: report,
+		},
+	}, nil
+}
+
 func NewBookReview(userID, bookID uuid.UUID, mark uint, report string) (*BookReview, error) {
 	r, err := NewReview(userID, bookID, mark, report)
 	if err != nil {
@@ -99,6 +111,18 @@ func (b *BookReview) Report() string {
 
 type UserReview struct {
 	r *Review
+}
+
+func CreateUserReview(id, fromID, toID uuid.UUID, mark uint, report string) (*UserReview, error) {
+	return &UserReview{
+		r: &Review{
+			id:     id,
+			fromID: fromID,
+			toID:   toID,
+			mark:   mark,
+			report: report,
+		},
+	}, nil
 }
 
 func NewUserReview(fromUserID, toUserID uuid.UUID, mark uint, report string) (*UserReview, error) {

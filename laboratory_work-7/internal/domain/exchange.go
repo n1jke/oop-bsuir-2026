@@ -22,6 +22,20 @@ type DatePolicy struct {
 	expiresAT time.Time
 }
 
+func NewDatePolicy(createdAt, updatedAT, expiresAT time.Time) *DatePolicy {
+	return &DatePolicy{
+		createdAt: createdAt,
+		updatedAT: updatedAT,
+		expiresAT: expiresAT,
+	}
+}
+
+func (d *DatePolicy) CreatedAt() time.Time { return d.createdAt }
+
+func (d *DatePolicy) UpdatedAt() time.Time { return d.updatedAT }
+
+func (d *DatePolicy) ExpiresAt() time.Time { return d.expiresAT }
+
 func (d *DatePolicy) ChangeExpireDate(expDate time.Time) error {
 	now := time.Now()
 	if now.After(expDate) {
@@ -64,6 +78,18 @@ func NewExchangeRequest(ownedBookID, fromID, toID uuid.UUID, d *DatePolicy, note
 		toID:        toID,
 		status:      Pending,
 		dateInfo:    d,
+		note:        note,
+	}, nil
+}
+
+func CreateExchangeRequest(id, ownedBookID, fromID, toID uuid.UUID, status ExchangeStatus, dateInfo *DatePolicy, note string) (*ExchangeRequest, error) {
+	return &ExchangeRequest{
+		id:          id,
+		ownedBookID: ownedBookID,
+		fromID:      fromID,
+		toID:        toID,
+		status:      status,
+		dateInfo:    dateInfo,
 		note:        note,
 	}, nil
 }
@@ -130,6 +156,10 @@ func (er *ExchangeRequest) Cancel() error {
 	er.dateInfo.Update()
 
 	return nil
+}
+
+func (er *ExchangeRequest) Note() string {
+	return er.note
 }
 
 func (er *ExchangeRequest) DateInfo() DatePolicy {

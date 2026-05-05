@@ -1,4 +1,4 @@
-package: bothttp
+package: bookhttp
 generate:
   std-http-server: true
   client: false
