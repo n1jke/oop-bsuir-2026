@@ -5,7 +5,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type AppConfig struct{}
+type AppConfig struct {
+	DB  DatabaseConfig
+	SVC ServiceConfig
+}
 
 func (c *AppConfig) Validate() error {
 	return nil
