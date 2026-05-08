@@ -72,7 +72,7 @@ func AuthMiddleware(logger *slog.Logger, secretKey []byte) func(http.Handler) ht
 			}
 
 			ctx := context.WithValue(r.Context(), idKey{}, userID)
-			ctx = context.WithValue(ctx, application.UserIDKey, userID)
+			ctx = context.WithValue(ctx, application.UserIDKeyType{}, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

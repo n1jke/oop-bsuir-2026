@@ -82,7 +82,7 @@ func (m *MockBookRepository) EXPECT() *MockBookRepositoryMockRecorder {
 }
 
 // Add mocks base method.
-func (m *MockBookRepository) Add(ctx context.Context, book domain.Book) (domain.Book, error) {
+func (m *MockBookRepository) Add(ctx context.Context, book *domain.Book) (domain.Book, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Add", ctx, book)
 	ret0, _ := ret[0].(domain.Book)
@@ -109,6 +109,21 @@ func (m *MockBookRepository) GetByID(ctx context.Context, bookID uuid.UUID) (dom
 func (mr *MockBookRepositoryMockRecorder) GetByID(ctx, bookID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockBookRepository)(nil).GetByID), ctx, bookID)
+}
+
+// GetByISBN mocks base method.
+func (m *MockBookRepository) GetByISBN(ctx context.Context, isbn string) (domain.Book, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByISBN", ctx, isbn)
+	ret0, _ := ret[0].(domain.Book)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByISBN indicates an expected call of GetByISBN.
+func (mr *MockBookRepositoryMockRecorder) GetByISBN(ctx, isbn any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByISBN", reflect.TypeOf((*MockBookRepository)(nil).GetByISBN), ctx, isbn)
 }
 
 // GetByTitle mocks base method.
@@ -151,7 +166,7 @@ func (m *MockExchangeRepository) EXPECT() *MockExchangeRepositoryMockRecorder {
 }
 
 // Add mocks base method.
-func (m *MockExchangeRepository) Add(ctx context.Context, exchange domain.ExchangeRequest) error {
+func (m *MockExchangeRepository) Add(ctx context.Context, exchange *domain.ExchangeRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Add", ctx, exchange)
 	ret0, _ := ret[0].(error)

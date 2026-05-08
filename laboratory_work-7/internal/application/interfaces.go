@@ -15,14 +15,14 @@ type Transactor interface {
 }
 
 type BookRepository interface {
-	Add(ctx context.Context, book domain.Book) (domain.Book, error)
+	Add(ctx context.Context, book *domain.Book) (domain.Book, error)
 	GetByTitle(ctx context.Context, title string) ([]*domain.Book, error)
 	GetByID(ctx context.Context, bookID uuid.UUID) (domain.Book, error)
 	GetByISBN(ctx context.Context, isbn string) (domain.Book, error)
 }
 
 type ExchangeRepository interface {
-	Add(ctx context.Context, exchange domain.ExchangeRequest) error
+	Add(ctx context.Context, exchange *domain.ExchangeRequest) error
 	GetByID(ctx context.Context, exchangeID uuid.UUID) (domain.ExchangeRequest, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID, status string) ([]*domain.ExchangeRequest, error)
 	GetByOwnedBook(ctx context.Context, ownedBookID uuid.UUID) ([]*domain.ExchangeRequest, error)

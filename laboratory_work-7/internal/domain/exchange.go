@@ -82,7 +82,8 @@ func NewExchangeRequest(ownedBookID, fromID, toID uuid.UUID, d *DatePolicy, note
 	}, nil
 }
 
-func CreateExchangeRequest(id, ownedBookID, fromID, toID uuid.UUID, status ExchangeStatus, dateInfo *DatePolicy, note string) (*ExchangeRequest, error) {
+func CreateExchangeRequest(id, ownedBookID, fromID, toID uuid.UUID, status ExchangeStatus, dateInfo *DatePolicy, note string,
+) (*ExchangeRequest, error) {
 	return &ExchangeRequest{
 		id:          id,
 		ownedBookID: ownedBookID,

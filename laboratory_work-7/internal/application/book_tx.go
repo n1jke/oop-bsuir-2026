@@ -56,7 +56,7 @@ func (b *BookService) createBookTx(ctx context.Context, title, authorName, isbn,
 		return BookDTO{}, ErrInvalidParams
 	}
 
-	saved, err := b.bookRepo.Add(ctx, *book)
+	saved, err := b.bookRepo.Add(ctx, book)
 	if err != nil {
 		b.logger.Error("add book to repo", slog.Any("err", err))
 		return BookDTO{}, ErrUnvailible

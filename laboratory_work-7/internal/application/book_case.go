@@ -23,7 +23,7 @@ func NewBookService(logger *slog.Logger, bookRepo BookRepository, tx Transactor)
 	}
 }
 
-func (b *BookService) SearchBook(ctx context.Context, title, topic string) (BookListResponse, error) {
+func (b *BookService) SearchBook(ctx context.Context, title, _ string) (BookListResponse, error) {
 	var (
 		result BookListResponse
 		errIn  error
