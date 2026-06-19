@@ -1,0 +1,598 @@
+openapi: 3.0.0
+info:
+  title: Booking service
+  version: 1.0.0
+  contact:
+    name: Matvey Khadorik
+    url: https://github.com/n1jke
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+  
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        rating:
+          type: number
+          format: float
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        authorName:
+          type: string
+        ISBN:
+          type: string
+        description:
+          type: string
+        topics:
+          type: array
+          items:
+            type: string
+
+    ExchangeRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ownedBookId:
+          type: string
+          format: uuid
+        fromId:
+          type: string
+          format: uuid
+        toId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, accepted, rejected, completed, canceled]
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fromId:
+          type: string
+          format: uuid
+        toId:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        mark:
+          type: integer
+          minimum: 0
+          maximum: 10
+        report:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Id:
+                    type: string
+                    format: uuid
+                  token:
+                    type: string
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Search and list books
+      operationId: getBooks
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+        - name: topic
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  books:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+                  total:
+                    type: integer
+
+    post:
+      tags:
+        - Books
+      summary: Add new book to catalog
+      operationId: createBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                isbn:
+                  type: string
+                description:
+                  type: string
+                topics:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - title
+                - isbn
+      responses:
+        '201':
+          description: Book created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /books/{bookId}:
+    get:
+      tags:
+        - Books
+      summary: Get book details
+      operationId: getBookByID
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List all users
+      operationId: getUsers
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/me/library:
+    get:
+      tags:
+        - Library
+      summary: Get my book library
+      operationId: getMyLibrary
+      responses:
+        '200':
+          description: User's book library
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  books:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+
+    post:
+      tags:
+        - Library
+      summary: Add book to my library
+      operationId: addToLibrary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookId:
+                  type: string
+                  format: uuid
+              required:
+                - bookId
+      responses:
+        '200':
+          description: Book added to library
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /exchanges:
+    post:
+      tags:
+        - Exchanges
+      summary: Create exchange request
+      operationId: createExchange
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ownedBookId:
+                  type: string
+                  format: uuid
+                toUserId:
+                  type: string
+                  format: uuid
+                expiresAt:
+                  type: string
+                  format: date-time
+                note:
+                  type: string
+              required:
+                - ownedBookId
+                - toUserId
+      responses:
+        '201':
+          description: Exchange request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /exchanges/{exchangeId}:
+    get:
+      tags:
+        - Exchanges
+      summary: Get exchange details
+      operationId: getExchange
+      parameters:
+        - name: exchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exchange details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '404':
+          description: Exchange not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /exchanges/{exchangeId}/accept:
+    put:
+      tags:
+        - Exchanges
+      summary: Accept exchange request
+      operationId: acceptExchange
+      parameters:
+        - name: exchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exchange accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '400':
+          description: Cannot accept exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /exchanges/{exchangeId}/reject:
+    put:
+      tags:
+        - Exchanges
+      summary: Reject exchange request
+      operationId: rejectExchange
+      parameters:
+        - name: exchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exchange rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '400':
+          description: Cannot reject exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /exchanges/{exchangeId}/cancel:
+    put:
+      tags:
+        - Exchanges
+      summary: Cancel exchange request
+      operationId: cancelExchange
+      parameters:
+        - name: exchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exchange canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRequest'
+        '400':
+          description: Cannot cancel exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me/exchanges:
+    get:
+      tags:
+        - Exchanges
+      summary: Get my exchanges
+      operationId: getMyExchanges
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, rejected, completed, canceled]
+      responses:
+        '200':
+          description: List of my exchanges
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exchanges:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExchangeRequest'
+
+  /reviews/books:
+    post:
+      tags:
+        - Reviews
+      summary: Add book review
+      operationId: createBookReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookId:
+                  type: string
+                  format: uuid
+                mark:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                report:
+                  type: string
+              required:
+                - bookId
+                - mark
+      responses:
+        '201':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reviews/users:
+    post:
+      tags:
+        - Reviews
+      summary: Add user review
+      operationId: createUserReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                mark:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                report:
+                  type: string
+              required:
+                - userId
+                - mark
+      responses:
+        '201':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

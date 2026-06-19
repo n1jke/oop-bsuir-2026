@@ -1,8 +1,8 @@
 COVERAGE_FILE ?= coverage.out
 
-TARGET_PKG ?= cmd/app
+TARGET_PKG ?= cmd/booking
 BINARY_NAME ?= app
-WORK_DIR ?= laboratory_work-5
+WORK_DIR ?= laboratory_work-7
 override WORK_DIR := $(or $(strip $(WORK_DIR)),.)
 
 # Build
